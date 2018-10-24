@@ -78,7 +78,9 @@ int main(){
 	automaton.makeComplete();
 	std::cout << "Complet : " << automaton.isComplete() << std::endl;
 	automaton.prettyPrint(std::cout);
-
+	//automaton.makeComplement();
+	//automaton.prettyPrint(std::cout);
+	std::cout << "Empty : " << automaton.isLanguageEmpty() << std::endl;
 //vérifier ordre transitions
 
 

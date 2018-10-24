@@ -21,7 +21,11 @@ namespace fa{
 
     class Automaton{
         public:
-            // Ici, on place les signatures des méthodes de la classe Automaton, par exemple pour addState et removeState :
+	
+			void removeFinalState(int state);
+			bool findFinalState(int state) const;
+/************************************************************************/
+
             void addState(int state);
             void removeState(int state);
 			bool hasState(int state) const;
@@ -40,6 +44,9 @@ namespace fa{
 			bool isComplete() const;
 			void makeComplete();
 			void makeComplement();
+			bool isLanguageEmpty() const;
+			void removeNonAccessibleStates();
+			void removeNonCoAccessibleStates();
 
         private:
             std::string name;

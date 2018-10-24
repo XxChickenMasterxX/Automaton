@@ -25,6 +25,14 @@ void fa::Automaton::removeState(int state){
 		states.erase(state);
 		initialStates.erase(state);
 		finalStates.erase(state);
+		std::set<int>::iterator st;
+		std::set<Transition>::iterator tr;
+		for(tr = transition.begin() ; tr != transition.end() ; ++tr){
+			if(tr->getFrom() == *st){
+				transition.erase(*tr);
+			}
+		}
+		
   	 	std::cout << "Après la suprression de l'état " << state << ", l'automate possède " << states.size() << " état(s)." << std::endl;
 	}else{
 		std::cout << "Etat non présent\n";
@@ -78,6 +86,14 @@ bool fa::Automaton::isStateFinal(int state) const{
 		std::cout << "Etat non présent\n";
 		return false;
 	}	
+}
+
+void fa::Automaton::removeFinalState(int state){
+	if(finalStates.find(state) != states.end()){
+		finalStates.erase(state);
+	}else{
+		std::cout << "Etat non présent\n";
+	}
 }
 
 int fa::Transition::getFrom() const{
@@ -253,22 +269,14 @@ void fa::Automaton::makeComplete() {
 	
 	addState(max);
 
-	for(st = finalStates.begin() ; st != finalStates.end() ; ++st){
-		for(let = alphabet.begin() ; let != alphabet.end() ; ++let){
-			addTransition(*st,*let,max);
-		}
-	}
-
-	for(st = states.begin() ; st != states.end() ; ++st){
-		if(isStateFinal(*st))
-			continue;	
+	for(st = states.begin() ; st != states.end() ; ++st){	
 		for(let = alphabet.begin() ; let != alphabet.end() ; ++let){
 			for(tr = transition.begin() ; tr != transition.end() ; ++tr){
-				if(*st != tr->getFrom()){
+				if(*st != tr->getFrom()){//test si l'état de départ correspond à celui recherché
 					break;
 				}
-				if(*let == tr->getAlpha() && *st == tr->getFrom()){
-					res = true;
+				if(*let == tr->getAlpha() && *st == tr->getFrom()){//test si la transition part du bon etat avec la bonne lettre
+					res = true;//Boolean pour éviter de rajouter plusieurs fois la meme transition
 					break;
 				}					
 			}
@@ -278,10 +286,53 @@ void fa::Automaton::makeComplete() {
 			}
 			addTransition(*st,*let,max);			
 		}
+	}	
+}
+
+void fa::Automaton::makeComplement(){
+	if(!isDeterministic() || !isComplete()){
+		std::cout << "L'automate doit être complet et déterministe" << std::endl;
 	}
 
-	
-	
-	
+	std::set<int>::iterator st;
+
+	for(st = states.begin() ; st != states.end() ; ++st){
+		if(isStateFinal(*st)){
+			removeFinalState(*st);
+		}else{
+			setStateFinal(*st);
+		}
+	}
 }
+
+bool fa::Automaton::isLanguageEmpty() const{
+	if(initialStates.empty() || finalStates.empty()){
+		return true;
+	}
+
+	std::set<int>::iterator st;
+	std::set<Transition>::iterator tr;
+	
+	for(st = initialStates.begin() ; st != initialStates.end() ; ++st){
+		findFinalState(*st);
+	}
+
+	return false;
+}
+
+bool fa::Automaton::findFinalState(int state) const{
+	std::set<int>::iterator st;
+	std::set<Transition>::iterator tr;
+	for(tr = transition.begin() ; tr != transition.end() ; ++tr){
+		if(tr->getFrom() == state){
+			if(isStateFinal(tr->getTo())){
+				return false;
+			}else{
+				findFinalState(*st);
+			}
+		}
+	}
+	return true;
+}
+
 }
