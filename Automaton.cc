@@ -25,10 +25,9 @@ void fa::Automaton::removeState(int state){
 		states.erase(state);
 		initialStates.erase(state);
 		finalStates.erase(state);
-		std::set<int>::iterator st;
 		std::set<Transition>::iterator tr;
 		for(tr = transition.begin() ; tr != transition.end() ; ++tr){
-			if(tr->getFrom() == *st){
+			if(tr->getFrom() == state || tr->getTo() == state){
 				transition.erase(*tr);
 			}
 		}
