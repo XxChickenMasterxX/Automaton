@@ -236,6 +236,187 @@ TEST(AutomatonTest, alphabetSizeLessSimple) {
 }
 
 // test isDeterministic
+TEST(AutomatonTest, NoDeterministicNoInitStateNoTransition) {
+  	fa::Automaton fa;
+	fa.addState(1);
+	fa.addState(2);
+	fa.setStateFinal(2);
+  	EXPECT_FALSE(fa.isDeterministic());
+}
+
+TEST(AutomatonTest, NoDeterministicNoInitState) {
+  	fa::Automaton fa;
+	fa.addState(1);
+	fa.addState(2);
+	fa.setStateFinal(2);
+	fa.addTransition(1,'a',1);
+	fa.addTransition(1,'b',2);
+	fa.addTransition(2,'a',2);
+	fa.addTransition(2,'b',1);
+  	EXPECT_FALSE(fa.isDeterministic());
+}
+
+TEST(AutomatonTest, NoDeterministicNoFinalStateNoTransition) {
+  	fa::Automaton fa;
+	fa.addState(1);
+	fa.setStateInitial(1);
+	fa.addState(2);
+  	EXPECT_FALSE(fa.isDeterministic());
+}
+
+TEST(AutomatonTest, NoDeterministicNoFinalState) {
+  	fa::Automaton fa;
+	fa.addState(1);
+	fa.setStateInitial(1);
+	fa.addState(2);
+	fa.addTransition(1,'a',1);
+	fa.addTransition(1,'b',2);
+	fa.addTransition(2,'a',2);
+	fa.addTransition(2,'b',1);
+  	EXPECT_FALSE(fa.isDeterministic());
+}
+
+TEST(AutomatonTest, DeterministicInitNotEqualFinal) {
+  	fa::Automaton fa;
+	fa.addState(1);
+	fa.setStateInitial(1);
+	fa.addState(2);
+	fa.setStateFinal(2);
+	fa.addTransition(1,'a',1);
+	fa.addTransition(1,'b',1);
+	fa.addTransition(1,'b',2);
+  	EXPECT_TRUE(fa.isDeterministic());
+}
+
+TEST(AutomatonTest, DeterministicInitEqualFinal) {
+  	fa::Automaton fa;
+	fa.addState(1);
+	fa.setStateInitial(1);
+	fa.setStateFinal(1);
+	fa.addState(2);
+	fa.addTransition(1,'a',1);
+	fa.addTransition(1,'b',2);
+	fa.addTransition(2,'a',2);
+	fa.addTransition(2,'b',1);
+  	EXPECT_TRUE(fa.isDeterministic());
+}
+
+
+// test isComplete
+TEST(AutomatonTest, Complete) {
+  	fa::Automaton fa;
+	fa.addState(1);
+	fa.setStateInitial(1);
+	fa.setStateFinal(1);
+	fa.addState(2);
+	fa.addTransition(1,'a',1);
+	fa.addTransition(1,'b',2);
+	fa.addTransition(2,'a',2);
+	fa.addTransition(2,'b',1);
+  	EXPECT_TRUE(fa.isComplete());
+}
+
+TEST(AutomatonTest, NotComplete) {
+  	fa::Automaton fa;
+	fa.addState(1);
+	fa.setStateInitial(1);
+	fa.addState(2);
+	fa.setStateFinal(2);
+	fa.addTransition(1,'a',1);
+	fa.addTransition(1,'b',1);
+	fa.addTransition(1,'b',2);
+  	EXPECT_FALSE(fa.isComplete());
+}
+
+// test makeComplete
+TEST(AutomatonTest, CompleteInitEqualFinal) {
+  	fa::Automaton fa;
+	fa.addState(1);
+	fa.setStateInitial(1);
+	fa.setStateFinal(1);
+	fa.addState(2);
+	fa.addTransition(1,'a',1);
+	fa.addTransition(1,'b',2);
+	fa.addTransition(2,'a',2);
+	fa.addTransition(2,'b',1);
+	EXPECT_TRUE(fa.isComplete());
+	fa.makeComplete();
+  	EXPECT_TRUE(fa.isComplete());
+}
+
+TEST(AutomatonTest, CompleteInitNotEqualFinal) {
+  	fa::Automaton fa;
+	fa.addState(1);
+	fa.setStateInitial(1);
+	fa.addState(2);
+	fa.setStateFinal(2);
+	fa.addTransition(1,'a',1);
+	fa.addTransition(1,'b',1);
+	fa.addTransition(1,'b',2);
+	EXPECT_FALSE(fa.isComplete());
+	fa.makeComplete();
+  	EXPECT_TRUE(fa.isComplete());
+}
+
+// test makeComplement
+
+// test islanguageEmpty
+TEST(AutomatonTest, LanguageNotEmpty) {
+  	fa::Automaton fa;
+	fa.addState(1);
+	fa.setStateInitial(1);
+	fa.addState(2);
+	fa.setStateFinal(1);
+	fa.addTransition(1,'a',1);
+	fa.addTransition(1,'b',2);
+	fa.addTransition(2,'a',2);
+	fa.addTransition(2,'b',1);
+  	EXPECT_FALSE(fa.isLanguageEmpty());
+}
+
+TEST(AutomatonTest, LanguageNotEmptyInitEqualFinal) {
+  	fa::Automaton fa;
+	fa.addState(1);
+	fa.setStateInitial(1);
+	fa.setStateFinal(1);
+  	EXPECT_FALSE(fa.isLanguageEmpty());
+}
+
+TEST(AutomatonTest, LanguageEmpty) {
+  	fa::Automaton fa;
+	fa.addState(1);
+	fa.setStateInitial(1);
+	fa.addState(2);
+	fa.setStateFinal(2);
+  	EXPECT_TRUE(fa.isLanguageEmpty());
+}
+
+TEST(AutomatonTest, LanguageEmptyNoInitState) {
+  	fa::Automaton fa;
+  	fa.addState(2);
+	fa.setStateFinal(2);
+  	EXPECT_TRUE(fa.isLanguageEmpty());
+}
+
+TEST(AutomatonTest, LanguageEmptyNoFinalState) {
+  	fa::Automaton fa;
+  	fa.addState(1);
+	fa.setStateInitial(1);
+  	EXPECT_TRUE(fa.isLanguageEmpty());
+}
+
+// test removeNonAccessibleStates
+/*TEST(AutomatonTest, RemoveState) {
+  	fa::Automaton fa;
+	fa.addState(1);
+	fa.setStateInitial(1);
+	fa.addState(2);
+	fa.setStateFinal(2);
+	fa.removeNonAccessibleStates();
+  	EXPECT_FALSE(fa.hasState(2));
+}*/
+
+// test removeNonCoAccessibleStates
 
 int main(int argc, char **argv) {
   	::testing::InitGoogleTest(&argc, argv);
