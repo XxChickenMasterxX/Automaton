@@ -24,6 +24,7 @@ namespace fa{
 	
 			void removeFinalState(int state);
 			bool findFinalState(int state) const;
+			bool findInitialState(int state) const;
 /************************************************************************/
 
             void addState(int state);
@@ -47,6 +48,8 @@ namespace fa{
 			bool isLanguageEmpty() const;
 			void removeNonAccessibleStates();
 			void removeNonCoAccessibleStates();
+			static Automaton createProduct(const Automaton& lhs, const Automaton& rhs);
+			bool hasEmptyIntersectionWith(const Automaton& other) const;
 
         private:
             std::string name;

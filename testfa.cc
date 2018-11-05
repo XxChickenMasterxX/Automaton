@@ -285,7 +285,7 @@ TEST(AutomatonTest, DeterministicInitNotEqualFinal) {
 	fa.addTransition(1,'a',1);
 	fa.addTransition(1,'b',1);
 	fa.addTransition(1,'b',2);
-  	EXPECT_TRUE(fa.isDeterministic());
+  	EXPECT_FALSE(fa.isDeterministic());
 }
 
 TEST(AutomatonTest, DeterministicInitEqualFinal) {
@@ -366,7 +366,7 @@ TEST(AutomatonTest, LanguageNotEmpty) {
 	fa.addState(1);
 	fa.setStateInitial(1);
 	fa.addState(2);
-	fa.setStateFinal(1);
+	fa.setStateFinal(2);
 	fa.addTransition(1,'a',1);
 	fa.addTransition(1,'b',2);
 	fa.addTransition(2,'a',2);
@@ -379,7 +379,16 @@ TEST(AutomatonTest, LanguageNotEmptyInitEqualFinal) {
 	fa.addState(1);
 	fa.setStateInitial(1);
 	fa.setStateFinal(1);
+	fa.addTransition(1,'a',1);
   	EXPECT_FALSE(fa.isLanguageEmpty());
+}
+
+TEST(AutomatonTest, LanguageEmptyInitEqualFinal) {
+  	fa::Automaton fa;
+	fa.addState(1);
+	fa.setStateInitial(1);
+	fa.setStateFinal(1);
+  	EXPECT_TRUE(fa.isLanguageEmpty());
 }
 
 TEST(AutomatonTest, LanguageEmpty) {
@@ -419,7 +428,6 @@ TEST(AutomatonTest, LanguageEmptyNoFinalState) {
 // test removeNonCoAccessibleStates
 
 int main(int argc, char **argv) {
-  	::testing::InitGoogleTest(&argc, argv);
+::testing::InitGoogleTest(&argc, argv);
   	return RUN_ALL_TESTS();
 }
-

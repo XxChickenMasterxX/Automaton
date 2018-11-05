@@ -191,7 +191,7 @@ void fa::Automaton::prettyPrint(std::ostream& os) const{
 }
 
 bool fa::Automaton::isDeterministic() const{
-	if(initialStates.size() != 1 && finalStates.empty()){
+	if(initialStates.size() != 1 || finalStates.empty()){
 		return false;
 	}
 	//test si il n'y a pas d'ambiguité lors d'une transition
@@ -291,6 +291,7 @@ void fa::Automaton::makeComplete() {
 void fa::Automaton::makeComplement(){
 	if(!isDeterministic() || !isComplete()){
 		std::cout << "L'automate doit être complet et déterministe" << std::endl;
+		return;
 	}
 
 	std::set<int>::iterator st;
@@ -310,28 +311,70 @@ bool fa::Automaton::isLanguageEmpty() const{
 	}
 
 	std::set<int>::iterator st;
-	std::set<Transition>::iterator tr;
 	
 	for(st = initialStates.begin() ; st != initialStates.end() ; ++st){
-		findFinalState(*st);
+		return !(findFinalState(*st));
 	}
 
-	return false;
+	return true;
 }
 
 bool fa::Automaton::findFinalState(int state) const{
-	std::set<int>::iterator st;
 	std::set<Transition>::iterator tr;
 	for(tr = transition.begin() ; tr != transition.end() ; ++tr){
 		if(tr->getFrom() == state){
 			if(isStateFinal(tr->getTo())){
-				return false;
+				return true;
 			}else{
-				findFinalState(*st);
+				if(tr->getFrom() != tr->getTo()){
+					findFinalState(tr->getTo());
+				}
 			}
 		}
 	}
-	return true;
+	return false;
 }
 
+void fa::Automaton::removeNonAccessibleStates(){
+	std::set<int>::iterator st;
+	for(st = states.begin() ; st != states.end() ; st++){
+		if(isStateInitial(*st)){
+			continue;
+		}
+		if(!findInitialState(*st)){
+			removeState(*st);
+		}
+	}
 }
+
+void fa::Automaton::removeNonCoAccessibleStates(){
+	std::set<int>::iterator st;
+	for(st = states.begin() ; st != states.end() ; st++){
+		if(isStateFinal(*st)){
+			continue;
+		}
+		if(!findFinalState(*st)){
+			removeState(*st);
+		}
+	}	
+}
+
+bool fa::Automaton::findInitialState(int state) const{
+	std::set<Transition>::iterator tr;
+	for(tr = transition.begin() ; tr != transition.end() ; ++tr){
+		if(tr->getTo() == state){
+			if(isStateInitial(tr->getFrom())){
+				return true;
+			}else{
+				if(tr->getFrom() != tr->getTo()){
+					findInitialState(tr->getFrom());
+				}
+			}
+		}
+	}
+	return false;
+}
+}
+
+//static Automaton fa::Automaton::createProduct(const Automaton& lhs, const Automaton& rhs)
+//}
