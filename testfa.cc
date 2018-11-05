@@ -359,6 +359,81 @@ TEST(AutomatonTest, CompleteInitNotEqualFinal) {
 }
 
 // test makeComplement
+TEST(AutomatonTest, makeComplementSuccess) {
+  	fa::Automaton fa;
+  	fa.addState(0);
+	fa.addState(1);
+	fa.addState(2);
+	
+	fa.setStateInitial(0);
+	fa.setStateFinal(2);
+	
+	fa.addTransition(0,'a',0);
+	fa.addTransition(0,'a',1);
+	fa.addTransition(1,'b',2);
+	fa.addTransition(2,'a',2);
+	/*
+	fa.addState(0);
+	fa.addState(1);
+	fa.addState(2);
+	fa.addState(3);
+	
+	fa.setStateInitial(0);
+	fa.setStateFinal(2);
+	
+	fa.addTransition(0,'a',1);
+	fa.addTransition(0,'b',3);
+	fa.addTransition(1,'a',1);
+	fa.addTransition(1,'b',2);
+	fa.addTransition(2,'b',2);
+	fa.addTransition(2,'a',3);
+	fa.addTransition(3,'a',3);
+	fa.addTransition(3,'b',3);
+	*/
+	fa.makeComplete();
+	fa.prettyPrint(std::cout);
+	fa.makeComplement();
+	
+	EXPECT_TRUE(fa.hasState(0));
+	EXPECT_TRUE(fa.hasState(1));
+	EXPECT_TRUE(fa.hasState(2));
+	EXPECT_TRUE(fa.hasState(3));
+	
+	EXPECT_TRUE(fa.isStateInitial(0));
+	EXPECT_TRUE(fa.isStateFinal(0));
+	EXPECT_TRUE(fa.isStateFinal(1));
+	EXPECT_TRUE(fa.isStateFinal(3));
+	
+	EXPECT_TRUE(fa.hasTransition(0,'a',1));
+	EXPECT_TRUE(fa.hasTransition(0,'b',3));
+	EXPECT_TRUE(fa.hasTransition(1,'a',1));
+	EXPECT_TRUE(fa.hasTransition(1,'b',2));
+	EXPECT_TRUE(fa.hasTransition(2,'b',2));
+	EXPECT_TRUE(fa.hasTransition(2,'a',3));
+	EXPECT_TRUE(fa.hasTransition(3,'a',3));
+	EXPECT_TRUE(fa.hasTransition(3,'b',3));
+}
+
+// affichage pour verifier makeComplete
+/*
+    fa::Automaton fa;
+
+fa.addState(0);
+	fa.addState(1);
+	fa.addState(2);
+	
+	fa.setStateInitial(0);
+	fa.setStateFinal(2);
+	
+	fa.addTransition(0,'a',0);
+	fa.addTransition(0,'a',1);
+	fa.addTransition(1,'b',2);
+	fa.addTransition(2,'a',2);
+	fa.prettyPrint(std::cout);
+	fa.makeComplete();
+	fa.prettyPrint(std::cout);
+*/
+
 
 // test islanguageEmpty
 TEST(AutomatonTest, LanguageNotEmpty) {
@@ -415,7 +490,7 @@ TEST(AutomatonTest, LanguageEmptyNoFinalState) {
 }
 
 // test removeNonAccessibleStates
-/*TEST(AutomatonTest, RemoveState) {
+TEST(AutomatonTest, RemoveState) {
   	fa::Automaton fa;
 	fa.addState(1);
 	fa.setStateInitial(1);
@@ -423,7 +498,7 @@ TEST(AutomatonTest, LanguageEmptyNoFinalState) {
 	fa.setStateFinal(2);
 	fa.removeNonAccessibleStates();
   	EXPECT_FALSE(fa.hasState(2));
-}*/
+}
 
 // test removeNonCoAccessibleStates
 
