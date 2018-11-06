@@ -218,19 +218,6 @@ bool fa::Automaton::isDeterministic() const{
 	return true;
 }
 
-/*std::set<Transition> fa::Automaton::findStateTransition (int state){
-	std::set<Transition>:: stateTransitions;
-	std::set<Transition>::iterator tr;
-	
-	for(tr = transition.begin() ; tr != transition.end) ; tr++){
-		if(*tr.getFrom() == state){
-			stateTransitions.add(transition.find(*tr);
-		}
-	}	
-	
-	return stateTransitions;
-}*/
-
 bool fa::Automaton::isComplete() const{
 	std::set<Transition>::iterator tr;
 	std::set<int>::iterator st;
@@ -337,7 +324,7 @@ bool fa::Automaton::findFinalState(int state) const{
 
 void fa::Automaton::removeNonAccessibleStates(){
 	std::set<int>::iterator st;
-	for(st = states.begin() ; st != states.end() ; st++){
+	for(st = states.begin() ; st != states.end() ; ++st){
 		if(isStateInitial(*st)){
 			continue;
 		}
@@ -349,7 +336,7 @@ void fa::Automaton::removeNonAccessibleStates(){
 
 void fa::Automaton::removeNonCoAccessibleStates(){
 	std::set<int>::iterator st;
-	for(st = states.begin() ; st != states.end() ; st++){
+	for(st = states.begin() ; st != states.end() ; ++st){
 		if(isStateFinal(*st)){
 			continue;
 		}
@@ -374,7 +361,131 @@ bool fa::Automaton::findInitialState(int state) const{
 	}
 	return false;
 }
+
+Automaton fa::Automaton::createProduct(const Automaton& lhs, const Automaton& rhs){
+  	fa::Automaton res;
+	if(lhs.initialStates.empty() || rhs.initialStates.empty()){
+		return res;
+	}		
+
+	std::set<int>::iterator lhsSt;
+	std::set<int>::iterator rhsSt;
+	std::set<char>::iterator lt;
+	std::set<char>::iterator lt2;
+	std::set<int> lhsStates;
+	std::set<int> rhsStates;
+	std::set<std::list<int>> coupleList;
+	std::list<int> couple;
+	std::set<std::list<int>>::iterator cp;
+	bool newCp = true;
+
+	for(lt = lhs.alphabet.begin() ; lt != lhs.alphabet.end() ; ++lt){
+		for(lt2 = rhs.alphabet.begin() ; lt2 != rhs.alphabet.end() ; ++lt){
+			if(*lt == *lt2){
+				res.alphabet.insert(*lt);
+				break;
+			}	
+		}
+	}
+
+	if(res.alphabet.empty()){
+		return res;
+	}
+	
+	for(lhsSt = lhs.initialStates.begin() ; lhsSt != lhs.initialStates.end() ; ++lhsSt){
+		for(rhsSt = rhs.initialStates.begin() ; rhsSt != rhs.initialStates.end() ; ++rhsSt){
+			couple.push_back(*lhsSt);
+			couple.push_back(*rhsSt);
+			for(cp = coupleList.begin() ; cp != coupleList.end() ; ++cp){
+				if(*cp == couple){
+					newCp = false;
+				}
+			}
+			
+			if(newCp){
+				coupleList.insert(couple);		
+				int newState = res.states.size();
+				res.addState(newState);
+				res.setStateInitial(newState);
+				if(lhs.isStateFinal(*lhsSt) && rhs.isStateFinal(*rhsSt)){
+					res.setStateFinal(newState);
+				}
+				res.createProductRec(lhs, rhs, *rhsSt, *lhsSt, res, newState, coupleList);
+			}
+			newCp = true;
+			couple.clear();		
+		}
+	}
+	return res;
 }
 
-//static Automaton fa::Automaton::createProduct(const Automaton& lhs, const Automaton& rhs)
-//}
+void fa::Automaton::createProductRec(const Automaton& lhs, const Automaton& rhs, int rhsState, int lhsState, Automaton res, int fromState, std::set<std::list<int>> coupleList){
+
+	std::set<char>::iterator alpha;
+	std::set<int>::iterator lhsSt;
+	std::set<int>::iterator rhsSt;
+	std::set<int> newLhsStates;
+	std::set<int> newRhsStates;
+	std::set<Transition>::iterator tr;
+	size_t sizeSt;
+	std::list<int> couple;
+	std::set<std::list<int>>::iterator cp;
+	bool newCp = true;
+	
+	for(alpha = res.alphabet.begin() ; alpha != res.alphabet.end() ; ++alpha){
+		newRhsStates.clear();
+		newLhsStates.clear();
+		sizeSt = newRhsStates.size();
+		for(tr = rhs.transition.begin() ; tr != rhs.transition.end() ; ++tr){
+			if(tr->getFrom() == rhsState && tr->getAlpha() == *alpha){
+				newRhsStates.insert(tr->getTo());
+			}			
+		}
+		if(sizeSt == newRhsStates.size()){
+			continue;
+		}
+	
+		for(tr = lhs.transition.begin() ; tr != lhs.transition.end() ; ++tr){
+			sizeSt = newLhsStates.size();
+			if(tr->getFrom() == lhsState && tr->getAlpha() == *alpha){
+				newLhsStates.insert(tr->getTo());
+			}			
+		}
+		if(sizeSt == newLhsStates.size()){
+			continue;
+		}
+
+		for(lhsSt = newLhsStates.begin() ; lhsSt != newLhsStates.end() ; ++lhsSt){
+			for(rhsSt = newRhsStates.begin() ; rhsSt != newRhsStates.end() ; ++rhsSt){
+				couple.push_back(*lhsSt);
+				couple.push_back(*rhsSt);
+				for(cp = coupleList.begin() ; cp != coupleList.end() ; ++cp){
+					if(*cp == couple){
+						newCp = false;
+					}
+				}
+				int newState = res.states.size();
+				res.addState(newState);
+				res.addTransition(fromState, *alpha, newState);
+				if(newCp){
+					coupleList.insert(couple);
+					if(lhs.isStateFinal(*lhsSt) && rhs.isStateFinal(*rhsSt)){
+						res.setStateFinal(newState);
+					}
+					createProductRec(lhs, rhs, *rhsSt, *lhsSt, res, newState, coupleList);	
+				}
+				newCp = true;
+				couple.clear();
+			}
+		}				
+	}
+
+}
+
+bool fa::Automaton::hasEmptyIntersectionWith(const Automaton& other) const{
+	if(createProduct(other, (*this)).transition.empty()){
+		return true;
+	}
+	return false;
+}
+}

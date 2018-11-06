@@ -1,6 +1,8 @@
 #include <iostream> // Inclure ceci pour utiliser des "std::string"
 #include <set> // Inclure ceci pour utiliser des ensembles (voir la déclaration d'attribut "std::set<int> states;" ci-dessous par exemple)
 #include <tuple>
+#include <list>
+#include <iomanip>
 
 namespace fa{
 
@@ -25,6 +27,7 @@ namespace fa{
 			void removeFinalState(int state);
 			bool findFinalState(int state) const;
 			bool findInitialState(int state) const;
+			void createProductRec(const Automaton& lhs, const Automaton& rhs, int rhsState, int lhsState, Automaton res, int fromState, std::set<std::list<int>> coupleList);
 /************************************************************************/
 
             void addState(int state);
