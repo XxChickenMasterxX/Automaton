@@ -114,7 +114,7 @@ fa::Transition::Transition(int from, char alpha, int to){
 }
 
 void fa::Automaton::addTransition(int from, char alpha, int to){
-	if(hasState(from) && hasState(to)){
+	if(hasState(from) && hasState(to) && isprint(alpha)){
 		Transition t(from, alpha, to);
 		transition.insert(t);
 		alphabet.insert(alpha);
@@ -364,7 +364,7 @@ bool fa::Automaton::findInitialState(int state) const{
 
 Automaton fa::Automaton::createProduct(const Automaton& lhs, const Automaton& rhs){
   	fa::Automaton res;
-	if(lhs.initialStates.empty() || rhs.initialStates.empty()){
+	if(lhs.initialStates.empty() || rhs.initialStates.empty() || lhs.finalStates.empty() || rhs.finalStates.empty()){
 		return res;
 	}		
 
@@ -374,9 +374,9 @@ Automaton fa::Automaton::createProduct(const Automaton& lhs, const Automaton& rh
 	std::set<char>::iterator lt2;
 	std::set<int> lhsStates;
 	std::set<int> rhsStates;
-	std::set<std::list<int>> coupleList;
+	std::list<std::list<int>> coupleList;
 	std::list<int> couple;
-	std::set<std::list<int>>::iterator cp;
+	std::list<std::list<int>>::iterator cp;
 	bool newCp = true;
 
 	for(lt = lhs.alphabet.begin() ; lt != lhs.alphabet.end() ; ++lt){
@@ -403,7 +403,7 @@ Automaton fa::Automaton::createProduct(const Automaton& lhs, const Automaton& rh
 			}
 			
 			if(newCp){
-				coupleList.insert(couple);		
+				coupleList.push_back(couple);		
 				int newState = res.states.size();
 				res.addState(newState);
 				res.setStateInitial(newState);
@@ -419,7 +419,7 @@ Automaton fa::Automaton::createProduct(const Automaton& lhs, const Automaton& rh
 	return res;
 }
 
-void fa::Automaton::createProductRec(const Automaton& lhs, const Automaton& rhs, int rhsState, int lhsState, Automaton res, int fromState, std::set<std::list<int>> coupleList){
+void fa::Automaton::createProductRec(const Automaton& lhs, const Automaton& rhs, int rhsState, int lhsState, Automaton res, int fromState, std::list<std::list<int>> coupleList){//peut être une std::list<std::list
 
 	std::set<char>::iterator alpha;
 	std::set<int>::iterator lhsSt;
@@ -429,8 +429,9 @@ void fa::Automaton::createProductRec(const Automaton& lhs, const Automaton& rhs,
 	std::set<Transition>::iterator tr;
 	size_t sizeSt;
 	std::list<int> couple;
-	std::set<std::list<int>>::iterator cp;
+	std::list<std::list<int>>::iterator cp;
 	bool newCp = true;
+	int compteur = 0;
 	
 	for(alpha = res.alphabet.begin() ; alpha != res.alphabet.end() ; ++alpha){
 		newRhsStates.clear();
@@ -462,18 +463,25 @@ void fa::Automaton::createProductRec(const Automaton& lhs, const Automaton& rhs,
 				for(cp = coupleList.begin() ; cp != coupleList.end() ; ++cp){
 					if(*cp == couple){
 						newCp = false;
+						break;
 					}
+					++compteur;
 				}
-				int newState = res.states.size();
-				res.addState(newState);
-				res.addTransition(fromState, *alpha, newState);
+
+				if(!newCp){
+					res.addTransition(fromState, *alpha, compteur);	
+				}
 				if(newCp){
-					coupleList.insert(couple);
+					int newState = res.states.size();
+					res.addState(newState);
+					res.addTransition(fromState, *alpha, newState);
+					coupleList.push_back(couple);
 					if(lhs.isStateFinal(*lhsSt) && rhs.isStateFinal(*rhsSt)){
 						res.setStateFinal(newState);
 					}
 					createProductRec(lhs, rhs, *rhsSt, *lhsSt, res, newState, coupleList);	
 				}
+				compteur = 0;
 				newCp = true;
 				couple.clear();
 			}
@@ -483,9 +491,125 @@ void fa::Automaton::createProductRec(const Automaton& lhs, const Automaton& rhs,
 }
 
 bool fa::Automaton::hasEmptyIntersectionWith(const Automaton& other) const{
-	if(createProduct(other, (*this)).transition.empty()){
-		return true;
-	}
-	return false;
+	fa::Automaton newAutomaton = createProduct(other, (*this));
+	return newAutomaton.isLanguageEmpty();
 }
+
+
+std::set<int> fa::Automaton::readString(const std::string& word) const{
+	std::set<int> rambo;
+	int st = *initialStates.begin();
+	std::set<Transition>::iterator tr;
+	rambo.insert(st);
+	bool hasTrans = false;
+	
+	if(!isDeterministic()){
+		return rambo;
+	}
+ 
+	for(size_t i = 0 ; i < word.size() ; ++i){		
+		for(tr = transition.begin() ; tr != transition.end() ; ++tr){
+			if(tr->getFrom() == st && tr->getAlpha() == word[i]){
+				hasTrans = true;
+				st = tr->getTo();
+				rambo.insert(st);
+				break;
+			}
+		}
+		if(!hasTrans){
+			rambo.clear();
+			return rambo;
+		}
+	}
+	if(isStateFinal(st)){
+		rambo.clear();		
+	}
+	return rambo;
+}
+
+bool fa::Automaton::match(const std::string& word) const{
+	return readString(word).empty();
+}
+
+Automaton fa::Automaton::createDeterministic(const Automaton& automaton){
+	if(!automaton.isDeterministic()){
+		return automaton;
+	}
+  	fa::Automaton res;
+	std::set<int>::iterator st;
+	std::set<char>::iterator alpha;
+	std::list<std::set<int>> stateList;
+	stateList.push_back(automaton.initialStates);
+	res.addState(0);		
+	res.setStateInitial(0);
+
+	for(alpha = automaton.alphabet.begin() ; alpha != automaton.alphabet.end() ; ++alpha){ 
+		res.alphabet.insert(*alpha);
+	}
+	for(st = automaton.initialStates.begin() ; st != automaton.initialStates.end() ; ++st){
+		if(automaton.isStateFinal(*st)){
+			res.setStateFinal(*st);
+			break;
+		}
+	}
+	res.createDeterministicRec(automaton, automaton.initialStates, stateList, res, 0);
+	return res;
+}
+
+void fa::Automaton::createDeterministicRec(const Automaton& automaton, std::set<int> currStates, std::list<std::set<int>> stateList, Automaton& res, int stateFrom){
+	std::set<int>::iterator st;
+	std::set<char>::iterator alpha;
+	std::set<Transition>::iterator tr;
+	std::set<int> newStates;
+	std::list<std::set<int>>::iterator listSt;
+	bool isListNew = true;
+	bool isFinal = false;
+	int cpt = 0;
+
+	for(alpha = res.alphabet.begin() ; alpha != res.alphabet.end() ; ++alpha){
+		for(st = currStates.begin() ; st != currStates.end() ; ++st){
+			for(tr = res.transition.begin() ; tr != res.transition.end() ; ++tr){
+				if(tr->getFrom() == *st && tr->getAlpha() == *alpha){
+					newStates.insert(tr->getTo());
+					if(isStateFinal(tr->getTo())){
+						isFinal = true;
+					}		
+				}
+			}
+		}
+		if(newStates.empty()){
+			continue;
+		}
+		for(listSt = stateList.begin() ; listSt != stateList.end() ; ++listSt){
+			if(*listSt == newStates){
+				isListNew = false;
+				break;
+			}
+			++cpt;
+		}
+
+		if(isListNew){
+			stateList.push_back(newStates);
+			int newState = res.states.size();
+			res.addState(newState);
+			if(isFinal){
+				res.setStateFinal(newState);
+				isFinal = false;
+			}
+			res.addTransition(stateFrom, *alpha, newState);
+			createDeterministicRec(automaton, newStates, stateList, res, newState);
+		}else{
+			res.addTransition(stateFrom, *alpha, cpt);
+			isListNew = true;	
+		}
+		cpt = 0;
+	}		
+}
+
+bool fa::Automaton::isIncludedIn(const Automaton& other) const{
+	fa::Automaton newAutomaton = other;
+	newAutomaton.makeComplement();
+	return createProduct((*this), newAutomaton).isLanguageEmpty();
+}
+	
 }

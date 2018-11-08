@@ -27,7 +27,8 @@ namespace fa{
 			void removeFinalState(int state);
 			bool findFinalState(int state) const;
 			bool findInitialState(int state) const;
-			void createProductRec(const Automaton& lhs, const Automaton& rhs, int rhsState, int lhsState, Automaton res, int fromState, std::set<std::list<int>> coupleList);
+			void createProductRec(const Automaton& lhs, const Automaton& rhs, int rhsState, int lhsState, Automaton res, int fromState, std::list<std::list<int>> coupleList);
+			void createDeterministicRec(const Automaton& automaton, std::set<int> currStates, std::list<std::set<int>> stateList, Automaton& res, int stateFrom);
 /************************************************************************/
 
             void addState(int state);
@@ -53,6 +54,10 @@ namespace fa{
 			void removeNonCoAccessibleStates();
 			static Automaton createProduct(const Automaton& lhs, const Automaton& rhs);
 			bool hasEmptyIntersectionWith(const Automaton& other) const;
+			std::set<int> readString(const std::string& word) const;
+			bool match(const std::string& word) const;
+			static Automaton createDeterministic(const Automaton& automaton);
+			bool isIncludedIn(const Automaton& other) const;
 
         private:
             std::string name;
