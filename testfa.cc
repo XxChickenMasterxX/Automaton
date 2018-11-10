@@ -503,6 +503,158 @@ TEST(AutomatonTest, NoRemoveUnCoaccesibleState) {
 }
 
 // test CreateProduct
+TEST(AutomatonTest, CreateProduct) {
+  	fa::Automaton fa; // automate a
+	fa.addState(1);
+	fa.addState(2);
+	
+	fa.setStateInitial(1);
+	fa.setStateFinal(2);
+	
+	fa.addTransition(1,'a',2);
+	fa.addTransition(2,'b',2);
+	
+	fa::Automaton fb; // automate b
+	fb.addState(1);
+	fb.addState(2);
+	
+	fb.setStateInitial(1);
+	fb.setStateFinal(2);
+	
+	fb.addTransition(1,'a',2);
+	
+	fa::Automaton fp;
+	fp.createProduct(fa,fb); // automate produit
+	
+	EXPECT_TRUE(fp.hasState(2));
+  	EXPECT_TRUE(fp.hasState(1));
+  	EXPECT_TRUE(fp.hasTransition(1,'a',2));
+	
+}
+
+// test emptyIntersection
+TEST(AutomatonTest, emptyIntersectionTrue) {
+  	fa::Automaton fa; // automate a
+	fa.addState(1);
+	fa.addState(2);
+	
+	fa.setStateInitial(1);
+	fa.setStateFinal(2);
+	
+	fa.addTransition(1,'b',2);
+	
+	fa::Automaton fb; // automate b
+	fb.addState(1);
+	fb.addState(2);
+	
+	fb.setStateInitial(1);
+	fb.setStateFinal(2);
+	
+	fb.addTransition(1,'a',2);
+	
+	EXPECT_TRUE(fa.hasEmptyIntersectionWith(fb));
+}
+
+// test emptyIntersection
+TEST(AutomatonTest, emptyIntersectionFalse) {
+  	fa::Automaton fa; // automate a
+	fa.addState(1);
+	fa.addState(2);
+	
+	fa.setStateInitial(1);
+	fa.setStateFinal(2);
+	
+	fa.addTransition(1,'a',2);
+	
+	fa::Automaton fb; // automate b
+	fb.addState(1);
+	fb.addState(2);
+	
+	fb.setStateInitial(1);
+	fb.setStateFinal(2);
+	
+	fb.addTransition(1,'a',2);
+	
+	EXPECT_TRUE(fa.hasEmptyIntersectionWith(fb));
+}
+
+//test readString
+TEST(AutomatonTest, readStringSimple) {
+  	fa::Automaton fa; // automate a
+	fa.addState(1);
+	fa.addState(2);
+	
+	fa.setStateInitial(1);
+	fa.setStateFinal(2);
+	
+	fa.addTransition(1,'a',2);
+
+    std::set<int> s;
+
+	s=fa.readString("a");
+	
+	EXPECT_TRUE(s.size()==2);
+	
+}
+
+//test match
+TEST(AutomatonTest, matchTrue){
+    fa::Automaton fa; // automate a
+	fa.addState(1);
+	fa.addState(2);
+	
+	fa.setStateInitial(1);
+	fa.setStateFinal(2);
+	
+	fa.addTransition(1,'a',2);
+	
+	EXPECT_TRUE(fa.match("a"));
+}
+
+TEST(AutomatonTest, matchFalse){
+    fa::Automaton fa; // automate a
+	fa.addState(1);
+	fa.addState(2);
+	
+	fa.setStateInitial(1);
+	fa.setStateFinal(2);
+	
+	fa.addTransition(1,'a',2);
+	
+	EXPECT_FALSE(fa.match("b"));
+}
+
+// test createDeterministic
+TEST(AutomatonTest, createDeterministic){
+    fa::Automaton fa; // automate a determiniser
+	fa.addState(1);
+	fa.addState(2);
+	
+	fa.setStateInitial(1);
+	fa.setStateFinal(2);
+	fa.addTransition(1,'a',1);
+	
+	
+	fa::Automaton fd; // automate determinisé
+	fd.createDeterministic(fa);
+	EXPECT_TRUE(fd.hasState(1));
+	EXPECT_TRUE(fd.hasState(2));
+	EXPECT_TRUE(fa.isStateInitial(1));
+	EXPECT_TRUE(fa.isStateFinal(1));
+	EXPECT_TRUE(fd.hasTransition(1,'a',1));
+}
+
+
+// test isIncludedIn
+
+//test createMinimalMoore
+
+// test createMinimalBrzozowski
+
+//test createMinimalHopcroft
+
+// test createWithoutEpsilon
+
 
 int main(int argc, char **argv) {
 ::testing::InitGoogleTest(&argc, argv);
