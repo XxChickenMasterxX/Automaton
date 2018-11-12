@@ -380,14 +380,13 @@ Automaton fa::Automaton::createProduct(const Automaton& lhs, const Automaton& rh
 	bool newCp = true;
 
 	for(lt = lhs.alphabet.begin() ; lt != lhs.alphabet.end() ; ++lt){
-		for(lt2 = rhs.alphabet.begin() ; lt2 != rhs.alphabet.end() ; ++lt){
+		for(lt2 = rhs.alphabet.begin() ; lt2 != rhs.alphabet.end() ; ++lt2){
 			if(*lt == *lt2){
 				res.alphabet.insert(*lt);
 				break;
 			}	
 		}
 	}
-
 	if(res.alphabet.empty()){
 		return res;
 	}
@@ -399,6 +398,7 @@ Automaton fa::Automaton::createProduct(const Automaton& lhs, const Automaton& rh
 			for(cp = coupleList.begin() ; cp != coupleList.end() ; ++cp){
 				if(*cp == couple){
 					newCp = false;
+					break;
 				}
 			}
 			
@@ -410,6 +410,7 @@ Automaton fa::Automaton::createProduct(const Automaton& lhs, const Automaton& rh
 				if(lhs.isStateFinal(*lhsSt) && rhs.isStateFinal(*rhsSt)){
 					res.setStateFinal(newState);
 				}
+				std::cout << "Chuuut" << std::endl;
 				res.createProductRec(lhs, rhs, *rhsSt, *lhsSt, res, newState, coupleList);
 			}
 			newCp = true;
@@ -419,7 +420,7 @@ Automaton fa::Automaton::createProduct(const Automaton& lhs, const Automaton& rh
 	return res;
 }
 
-void fa::Automaton::createProductRec(const Automaton& lhs, const Automaton& rhs, int rhsState, int lhsState, Automaton res, int fromState, std::list<std::list<int>> coupleList){//peut être une std::list<std::list
+void fa::Automaton::createProductRec(const Automaton& lhs, const Automaton& rhs, int rhsState, int lhsState, Automaton res, int fromState, std::list<std::list<int>> coupleList){
 
 	std::set<char>::iterator alpha;
 	std::set<int>::iterator lhsSt;
@@ -445,7 +446,8 @@ void fa::Automaton::createProductRec(const Automaton& lhs, const Automaton& rhs,
 		if(sizeSt == newRhsStates.size()){
 			continue;
 		}
-	
+		
+		sizeSt = newLhsStates.size();
 		for(tr = lhs.transition.begin() ; tr != lhs.transition.end() ; ++tr){
 			sizeSt = newLhsStates.size();
 			if(tr->getFrom() == lhsState && tr->getAlpha() == *alpha){
@@ -479,7 +481,7 @@ void fa::Automaton::createProductRec(const Automaton& lhs, const Automaton& rhs,
 					if(lhs.isStateFinal(*lhsSt) && rhs.isStateFinal(*rhsSt)){
 						res.setStateFinal(newState);
 					}
-					createProductRec(lhs, rhs, *rhsSt, *lhsSt, res, newState, coupleList);	
+					res.createProductRec(lhs, rhs, *rhsSt, *lhsSt, res, newState, coupleList);	
 				}
 				compteur = 0;
 				newCp = true;
