@@ -522,18 +522,18 @@ std::set<int> fa::Automaton::readString(const std::string& word) const{
 			return rambo;
 		}
 	}
-	if(isStateFinal(st)){
+	if(!isStateFinal(st)){
 		rambo.clear();		
 	}
 	return rambo;
 }
 
 bool fa::Automaton::match(const std::string& word) const{
-	return readString(word).empty();
+	return !readString(word).empty();
 }
 
 Automaton fa::Automaton::createDeterministic(const Automaton& automaton){
-	if(!automaton.isDeterministic()){
+	if(automaton.isDeterministic()){
 		return automaton;
 	}
   	fa::Automaton res;
