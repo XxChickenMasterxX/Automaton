@@ -58,6 +58,10 @@ namespace fa{
 			bool match(const std::string& word) const;
 			static Automaton createDeterministic(const Automaton& automaton);
 			bool isIncludedIn(const Automaton& other) const;
+			static Automaton createMinimalMoore(const Automaton& automaton);
+			static Automaton createMinimalBrzozowski(const Automaton& automaton);
+			static Automaton createMinimalHopcroft(const Automaton& automaton);
+			static Automaton createWithoutEpsilon(const Automaton& automaton);
 
         private:
             std::string name;

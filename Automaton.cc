@@ -410,7 +410,6 @@ Automaton fa::Automaton::createProduct(const Automaton& lhs, const Automaton& rh
 				if(lhs.isStateFinal(*lhsSt) && rhs.isStateFinal(*rhsSt)){
 					res.setStateFinal(newState);
 				}
-				std::cout << "Chuuut" << std::endl;
 				res.createProductRec(lhs, rhs, *rhsSt, *lhsSt, res, newState, coupleList);
 			}
 			newCp = true;
@@ -612,6 +611,38 @@ bool fa::Automaton::isIncludedIn(const Automaton& other) const{
 	fa::Automaton newAutomaton = other;
 	newAutomaton.makeComplement();
 	return createProduct((*this), newAutomaton).isLanguageEmpty();
+}
+
+Automaton fa::Automaton::createMinimalMoore(const Automaton& automaton){
+	fa::Automaton curr = automaton;
+	fa::Automaton res;
+	std::list<std::list<int>> listCongruence;
+	std::list<int> congruence;
+	std::set<Transition>::iterator tr;
+	std::set<char>::iterator alpha;
+	std::list<int>::iterator st;
+	bool sameCongruence = false;
+
+	if(!curr.isDeterministic()){
+		curr = createDeterministic(curr);
+	} 
+	if(!curr.isComplete()){
+		curr.makeComplete();
+	}
+	
+	while(!sameCongruence){
+		for(alpha = automaton.alphabet.begin() ; alpha != automaton.alphabet.end() ; ++alpha){
+			for(st = congruence.begin() ; st != congruence.end() ; ++st){
+				for(tr = automaton.transition.begin() ; tr != automaton.transition.end() ; ++tr){
+					if(tr->getFrom() == *st && tr->getAlpha() == *alpha){
+					
+					} 
+				}
+			}
+		}
+	}
+	res.alphabet = automaton.alphabet;
+	return res;
 }
 	
 }
