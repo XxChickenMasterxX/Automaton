@@ -486,7 +486,7 @@ TEST(AutomatonTest, RemoveUnCoaccessibleState) {
 	fa.setStateInitial(1);
 	fa.addState(2);
 	fa.setStateFinal(2);
-	fa.removeNonAccessibleStates();
+	fa.removeNonCoAccessibleStates();
   	EXPECT_TRUE(fa.hasState(2));
   	EXPECT_FALSE(fa.hasState(1));
 }
@@ -497,7 +497,7 @@ TEST(AutomatonTest, NoRemoveUnCoaccesibleState) {
 	fa.addState(2);
 	fa.setStateFinal(2);
 	fa.addTransition(1,'a',2);
-	fa.removeNonAccessibleStates();
+	fa.removeNonCoAccessibleStates();
   	EXPECT_TRUE(fa.hasState(2));
   	EXPECT_TRUE(fa.hasState(1));
 }
@@ -587,11 +587,14 @@ TEST(AutomatonTest, readStringSimple) {
 	fa.setStateInitial(1);
 	fa.setStateFinal(2);
 	
+	
 	fa.addTransition(1,'a',2);
 
     std::set<int> s;
 
 	s=fa.readString("a");
+	
+	//while()
 	
 	EXPECT_TRUE(s.size()==2);
 	
@@ -625,7 +628,46 @@ TEST(AutomatonTest, matchFalse){
 }
 
 // test createDeterministic
+TEST(AutomatonTest, createAlreadyDeterministic){
+    fa::Automaton fa; // automate a determiniser
+	fa.addState(1);
+	fa.addState(2);
+	
+	fa.setStateInitial(1);
+	fa.setStateFinal(2);
+	fa.addTransition(1,'a',2);
+	
+	
+	fa::Automaton fd; // automate determinisé
+	fd = fd.createDeterministic(fa);
+	fd.prettyPrint(std::cout);
+	EXPECT_TRUE(fd.hasState(1));
+	EXPECT_TRUE(fd.hasState(2));
+	EXPECT_TRUE(fd.isStateInitial(1));
+	EXPECT_TRUE(fd.isStateFinal(2));
+	EXPECT_TRUE(fd.hasTransition(1,'a',2));
+	EXPECT_FALSE(fd.isLanguageEmpty());
+	EXPECT_TRUE(fd.isDeterministic());
+}
+
+// test createDeterministic
 TEST(AutomatonTest, createDeterministic){
+    fa::Automaton fa; // automate a determiniser
+	fa.addState(1);
+	fa.addState(2);
+	
+	fa.setStateInitial(1);
+	fa.setStateFinal(2);
+	
+	
+	fa::Automaton fd; // automate determinisé
+	fd=fd.createDeterministic(fa);
+	EXPECT_TRUE(fd.isLanguageEmpty());
+	EXPECT_TRUE(fd.isDeterministic());
+}
+
+// test createDeterministic
+TEST(AutomatonTest, createDeterministic2){
     fa::Automaton fa; // automate a determiniser
 	fa.addState(1);
 	fa.addState(2);
@@ -636,12 +678,32 @@ TEST(AutomatonTest, createDeterministic){
 	
 	
 	fa::Automaton fd; // automate determinisé
-	fd.createDeterministic(fa);
-	EXPECT_TRUE(fd.hasState(1));
-	EXPECT_TRUE(fd.hasState(2));
-	EXPECT_TRUE(fa.isStateInitial(1));
-	EXPECT_TRUE(fa.isStateFinal(1));
-	EXPECT_TRUE(fd.hasTransition(1,'a',1));
+	fd=fd.createDeterministic(fa);
+	EXPECT_TRUE(fd.isLanguageEmpty());
+	EXPECT_TRUE(fd.isDeterministic());
+}
+
+// test createDeterministic
+TEST(AutomatonTest, createDeterministic3){
+    fa::Automaton fa; // automate a determiniser
+	fa.addState(1);
+	fa.addState(2);
+	fa.addState(3);
+	fa.addState(4);
+	
+	fa.setStateInitial(1);
+	fa.setStateFinal(2);
+	fa.addTransition(1,'a',2);
+	fa.addTransition(1,'a',3);
+	fa.addTransition(4,'a',3);
+	fa.addTransition(4,'a',1);
+	
+	
+	fa::Automaton fd; // automate determinisé
+	fd=fd.createDeterministic(fa);
+	fd.prettyPrint(std::cout);
+	EXPECT_FALSE(fd.isLanguageEmpty());
+	EXPECT_TRUE(fd.isDeterministic());
 }
 
 
