@@ -32,10 +32,14 @@ void fa::Automaton::removeState(int state){
 		states.erase(state);
 		initialStates.erase(state);
 		finalStates.erase(state);
-		std::set<Transition>::iterator tr;
-		for(tr = transition.begin() ; tr != transition.end() ; ++tr){
-			if(tr->getFrom() == state || tr->getTo() == state){
-				transition.erase(*tr);
+		
+		/**/
+		if(transition.size()!=0){ 
+			std::set<Transition>::iterator tr;
+			for(tr = transition.begin() ; tr != transition.end() ; ++tr){
+				if(tr->getFrom() == state || tr->getTo() == state){
+					transition.erase(*tr);
+				}
 			}
 		}
 		std::ostringstream oss;
@@ -46,6 +50,7 @@ void fa::Automaton::removeState(int state){
 		oss << "Etat non présent\n";
 		print(oss.str());
 	}	
+	
 }
 
 bool fa::Automaton::hasState(int state) const{
@@ -342,15 +347,21 @@ bool fa::Automaton::findFinalState(int state) const{
 	return false;
 }
 
-void fa::Automaton::removeNonAccessibleStates(){
+void fa::Automaton::removeNonAccessibleStates(){ // cas 
 	std::set<int>::iterator st;
-	for(st = states.begin() ; st != states.end() ; ++st){ // error iteration use < maybe
+	std::set<int> test;
+	for(st = states.begin() ; st != states.end() ; ++st){
 		if(isStateInitial(*st)){
 			continue;
 		}
 		if(!findInitialState(*st)){
 			//removeState(*st);
+			test.insert(*st);
 		}
+		
+	}
+	for(st = test.begin() ; st != test.end() ; ++st){
+		removeState(*st);
 	}
 }
 

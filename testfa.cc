@@ -461,6 +461,7 @@ TEST(AutomatonTest, RemoveUnaccesibleState) {
 	fa.setStateInitial(1);
 	fa.addState(2);
 	fa.setStateFinal(2);
+	
 	fa.removeNonAccessibleStates();
   	EXPECT_FALSE(fa.hasState(2));
   	EXPECT_TRUE(fa.hasState(1));
