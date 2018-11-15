@@ -344,12 +344,12 @@ bool fa::Automaton::findFinalState(int state) const{
 
 void fa::Automaton::removeNonAccessibleStates(){
 	std::set<int>::iterator st;
-	for(st = states.begin() ; st != states.end() ; ++st){
+	for(st = states.begin() ; st != states.end() ; ++st){ // error iteration use < maybe
 		if(isStateInitial(*st)){
 			continue;
 		}
 		if(!findInitialState(*st)){
-			removeState(*st);
+			//removeState(*st);
 		}
 	}
 }
