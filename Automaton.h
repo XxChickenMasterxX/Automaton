@@ -1,5 +1,4 @@
 #include <iostream> // Inclure ceci pour utiliser des "std::string"
-#include <sstream>
 #include <set> // Inclure ceci pour utiliser des ensembles (voir la déclaration d'attribut "std::set<int> states;" ci-dessous par exemple)
 #include <tuple>
 #include <list>
@@ -24,11 +23,10 @@ namespace fa{
 
     class Automaton{
         public:
-			void print(const std::string s) const;
-			void removeFinalState(int state);
+	
 			bool findFinalState(int state) const;
 			bool findInitialState(int state) const;
-			void createProductRec(const Automaton& lhs, const Automaton& rhs, int rhsState, int lhsState, Automaton res, int fromState, std::list<std::list<int>> coupleList);
+			void createProductRec(const Automaton& lhs, const Automaton& rhs, int rhsState, int lhsState, Automaton& res, int fromState, std::list<std::list<int>> coupleList);
 			void createDeterministicRec(const Automaton& automaton, std::set<int> currStates, std::list<std::set<int>> stateList, Automaton& res, int stateFrom);
 /************************************************************************/
 
@@ -65,7 +63,6 @@ namespace fa{
 			static Automaton createWithoutEpsilon(const Automaton& automaton);
 
         private:
-        	bool ifPrint=false;
             std::string name;
 			std::set<int> states; 
              // L'ensemble des états de l'automate
