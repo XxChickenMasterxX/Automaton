@@ -359,7 +359,7 @@ TEST(AutomatonTest, CompleteInitNotEqualFinal) {
 }
 
 // test makeComplement
-TEST(AutomatonTest, makeComplementSuccess) {
+TEST(AutomatonTest, makeComplement) {
   	fa::Automaton fa;
 	fa.addState(0);
 	fa.addState(1);
@@ -385,10 +385,10 @@ TEST(AutomatonTest, makeComplementSuccess) {
 	EXPECT_TRUE(fa.hasState(2));
 	EXPECT_TRUE(fa.hasState(3));
 	
-	EXPECT_TRUE(fa.isStateInitial(0));
+	EXPECT_FALSE(fa.isStateInitial(0));
 	EXPECT_TRUE(fa.isStateFinal(0));
-	EXPECT_TRUE(fa.isStateFinal(1));
-	EXPECT_TRUE(fa.isStateFinal(3));
+	EXPECT_FALSE(fa.isStateFinal(2));
+	EXPECT_TRUE(fa.isStateInitial(2));
 	
 	EXPECT_TRUE(fa.hasTransition(0,'a',1));
 	EXPECT_TRUE(fa.hasTransition(0,'b',3));
@@ -524,11 +524,11 @@ TEST(AutomatonTest, CreateProduct) {
 	fb.addTransition(1,'a',2);
 	
 	fa::Automaton fp;
-	fp.createProduct(fa,fb); // automate produit
-	
-	EXPECT_TRUE(fp.hasState(2));
-  	EXPECT_TRUE(fp.hasState(1));
-  	EXPECT_TRUE(fp.hasTransition(1,'a',2));
+	fp = fp.createProduct(fa,fb); // automate produit
+	fp.prettyPrint(std::cout);
+	EXPECT_TRUE(fp.hasState(1));
+  	EXPECT_TRUE(fp.hasState(0));
+  	EXPECT_TRUE(fp.hasTransition(0,'a',1));
 	
 }
 
@@ -555,6 +555,7 @@ TEST(AutomatonTest, emptyIntersectionTrue) {
 	EXPECT_TRUE(fa.hasEmptyIntersectionWith(fb));
 }
 
+// test emptyIntersection
 TEST(AutomatonTest, emptyIntersectionFalse) {
   	fa::Automaton fa; // automate a
 	fa.addState(1);
@@ -574,29 +575,7 @@ TEST(AutomatonTest, emptyIntersectionFalse) {
 	
 	fb.addTransition(1,'a',2);
 	
-	EXPECT_TRUE(fa.hasEmptyIntersectionWith(fb));
-}
-
-TEST(AutomatonTest, emptyIntersectionEmptyTwoAutomat) {
-  	fa::Automaton fa; // automate a
-
-	fa::Automaton fb; // automate b
-	
-	EXPECT_TRUE(fa.hasEmptyIntersectionWith(fb));
-}
-
-TEST(AutomatonTest, emptyIntersectionEmptyOneAutomat) {
-  	fa::Automaton fa; // automate a
-	fa.addState(1);
-	fa.addState(2);
-	
-	fa.setStateInitial(1);
-	fa.setStateFinal(2);
-	
-	fa.addTransition(1,'a',2);
-	fa::Automaton fb; // automate b
-	
-	EXPECT_TRUE(fa.hasEmptyIntersectionWith(fb));
+	EXPECT_FALSE(fa.hasEmptyIntersectionWith(fb));
 }
 
 //test readString
@@ -611,18 +590,15 @@ TEST(AutomatonTest, readStringSimple) {
 	
 	fa.addTransition(1,'a',2);
 
-	
     std::set<int> s;
 
 	s=fa.readString("a");
 	
+	//while()
+	
 	EXPECT_TRUE(s.size()==2);
 	
 }
-
-	// test sans etat final
-	// test sans etat initial
-	// test avec automat vide
 
 //test match
 TEST(AutomatonTest, matchTrue){
