@@ -309,10 +309,8 @@ void fa::Automaton::makeComplement(){
 	for(st = states.begin() ; st != states.end() ; ++st){
 		if(isStateFinal(*st)){
 			finalStates.erase(*st);
-			setStateInitial(*st);
-		}else if(isStateInitial(*st)){
-				initialStates.erase(*st);
-				setStateFinal(*st);			
+		}else {
+			setStateFinal(*st);			
 		}
 	}
 }
@@ -339,7 +337,7 @@ bool fa::Automaton::findFinalState(int state) const{
 				return true;
 			}else{
 				if(tr->getFrom() != tr->getTo()){
-					findFinalState(tr->getTo());
+					return findFinalState(tr->getTo());
 				}
 			}
 		}
@@ -385,7 +383,7 @@ bool fa::Automaton::findInitialState(int state) const{
 				return true;
 			}else{
 				if(tr->getFrom() != tr->getTo()){
-					findInitialState(tr->getFrom());
+					return findInitialState(tr->getFrom());
 				}
 			}
 		}
@@ -530,14 +528,15 @@ bool fa::Automaton::hasEmptyIntersectionWith(const Automaton& other) const{
 
 std::set<int> fa::Automaton::readString(const std::string& word) const{
 	std::set<int> rambo;
-	int st = *initialStates.begin();
 	std::set<Transition>::iterator tr;
-	rambo.insert(st);
 	bool hasTrans = false;
 	
 	if(!isDeterministic()){
 		return rambo;
 	}
+ 
+ 	int st = *initialStates.begin();
+ 	rambo.insert(st);
  
 	for(size_t i = 0 ; i < word.size() ; ++i){		
 		for(tr = transition.begin() ; tr != transition.end() ; ++tr){
