@@ -8,6 +8,11 @@ std::ostream& operator<<(std::ostream& stream, const fa::Transition& transition)
 	return stream << transition.getFrom() << " vers " << transition.getTo() << " avec le caractère " << transition.getAlpha(); 
 }
 
+void fa::Automaton::print(std::string s) const{
+	if(ifPrint)
+		std::cout << s << std::endl;
+}
+
 // Dans ce fichier, on place les DÉFINITIONS des méthodes de la class Automaton
 
 // On reprend la signature de la fonction "addState" en rajoutant "fa::Automaton::" devant le nom de la méthode, ce qui donne :
@@ -17,7 +22,9 @@ void fa::Automaton::addState(int state){
     // On ajoute donc l'état "state" à l'ensemble des états de l'automate (donc à l'attribut "states"):
     states.insert(state);
     // Pour débugger plus facilement, vous pouvez afficher le nombre d'états dans l'automate après insertion :
-    std::cout << "Après insertion de l'état " << state << ", l'automate possède " << states.size() << " état(s)." << std::endl;
+    std::ostringstream oss;
+    oss << "Après insertion de l'état " << state << ", l'automate possède " << states.size() << " état(s).";
+    print(oss.str());
 }
 
 void fa::Automaton::removeState(int state){
@@ -25,17 +32,25 @@ void fa::Automaton::removeState(int state){
 		states.erase(state);
 		initialStates.erase(state);
 		finalStates.erase(state);
-		std::set<Transition>::iterator tr;
-		for(tr = transition.begin() ; tr != transition.end() ; ++tr){
-			if(tr->getFrom() == state || tr->getTo() == state){
-				transition.erase(*tr);
+		
+		/**/
+		if(transition.size()!=0){ 
+			std::set<Transition>::iterator tr;
+			for(tr = transition.begin() ; tr != transition.end() ; ++tr){
+				if(tr->getFrom() == state || tr->getTo() == state){
+					transition.erase(*tr);
+				}
 			}
 		}
-		
-  	 	std::cout << "Après la suprression de l'état " << state << ", l'automate possède " << states.size() << " état(s)." << std::endl;
+		std::ostringstream oss;
+  	 	oss << "Après la suprression de l'état " << state << ", l'automate possède " << states.size() << " état(s).";
+  	 	print(oss.str());
 	}else{
-		std::cout << "Etat non présent\n";
+		std::ostringstream oss;
+		oss << "Etat non présent\n";
+		print(oss.str());
 	}	
+	
 }
 
 bool fa::Automaton::hasState(int state) const{
@@ -43,7 +58,9 @@ bool fa::Automaton::hasState(int state) const{
 }
 
 std::size_t fa::Automaton::countStates() const{
-	std::cout << "Il y a" << states.size() << "état(s).\n";
+	std::ostringstream oss;
+	oss << "Il y a" << states.size() << "état(s).\n";
+	print(oss.str());
 	return states.size();
 }
 
@@ -51,7 +68,9 @@ void fa::Automaton::setStateInitial(int state){
 	if(hasState(state)){
 		initialStates.insert(state);
 	}else{
-		std::cout << "Etat non présent\n";
+		std::ostringstream oss;
+		oss << "Etat non présent\n";
+		print(oss.str());
 	}		
 }
 
@@ -62,7 +81,9 @@ bool fa::Automaton::isStateInitial(int state) const{
 		}
 	return false;
 	}else{
-		std::cout << "Etat non présent\n";
+		std::ostringstream oss;
+		oss << "Etat non présent\n";
+		print(oss.str());
 		return false;
 	}	
 }
@@ -71,7 +92,9 @@ void fa::Automaton::setStateFinal(int state){
 	if(hasState(state)){
 		finalStates.insert(state);
 	}else{
-		std::cout << "Etat non présent\n";
+		std::ostringstream oss;
+		oss << "Etat non présent\n";
+		print(oss.str());
 	}		
 }
 
@@ -82,7 +105,9 @@ bool fa::Automaton::isStateFinal(int state) const{
 		}
 	return false;
 	}else{
-		std::cout << "Etat non présent\n";
+		std::ostringstream oss;
+		oss << "Etat non présent\n";
+		print(oss.str());
 		return false;
 	}	
 }
@@ -106,14 +131,16 @@ fa::Transition::Transition(int from, char alpha, int to){
 }
 
 void fa::Automaton::addTransition(int from, char alpha, int to){
+	std::ostringstream oss;
 	if(hasState(from) && hasState(to) && isprint(alpha)){
 		Transition t(from, alpha, to);
 		transition.insert(t);
 		alphabet.insert(alpha);
-		std::cout << "Insertion de la transition de l'état " << from << " vers l'état " << to << " avec comme lettre : " << alpha << std::endl;
+		oss << "Insertion de la transition de l'état " << from << " vers l'état " << to << " avec comme lettre : " << alpha;
 	}else{
-		std::cout << "Un ou plusieurs états ne sont pas présents\n";
+		oss << "Un ou plusieurs états ne sont pas présents\n";
 	}	
+	print(oss.str());
 }
 	
 bool fa::Automaton::hasTransition(int from, char alpha, int to) const{
@@ -121,12 +148,14 @@ bool fa::Automaton::hasTransition(int from, char alpha, int to) const{
 }
 
 void fa::Automaton::removeTransition(int from, char alpha, int to){
+	std::ostringstream oss;
 	if(hasTransition(from, alpha, to)){
 		transition.erase(Transition(from, alpha, to));
-  	 	std::cout << "Après la suprression de la transition " << Transition(from, alpha, to) << ", l'automate possède " << transition.size() << " transition(s)." << std::endl;
+  	 	oss << "Après la suprression de la transition " << Transition(from, alpha, to) << ", l'automate possède " << transition.size() << " transition(s).";
 	}else{
-		std::cout << "Etat non présent\n";
+		oss << "Etat non présent\n";
 	}	
+	print(oss.str());
 }
 
 std::size_t fa::Automaton::countTransitions() const{
@@ -269,7 +298,9 @@ void fa::Automaton::makeComplete() {
 
 void fa::Automaton::makeComplement(){
 	if(!isDeterministic() || !isComplete()){
-		std::cout << "L'automate doit être complet et déterministe" << std::endl;
+		std::ostringstream oss;
+		oss << "L'automate doit être complet et déterministe" ;
+		print(oss.str());
 		return;
 	}
 
@@ -316,15 +347,21 @@ bool fa::Automaton::findFinalState(int state) const{
 	return false;
 }
 
-void fa::Automaton::removeNonAccessibleStates(){
+void fa::Automaton::removeNonAccessibleStates(){ // cas 
 	std::set<int>::iterator st;
+	std::set<int> test;
 	for(st = states.begin() ; st != states.end() ; ++st){
 		if(isStateInitial(*st)){
 			continue;
 		}
 		if(!findInitialState(*st)){
-			removeState(*st);
+			//removeState(*st);
+			test.insert(*st);
 		}
+		
+	}
+	for(st = test.begin() ; st != test.end() ; ++st){
+		removeState(*st);
 	}
 }
 
