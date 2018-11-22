@@ -385,10 +385,14 @@ TEST(AutomatonTest, makeComplement) {
 	EXPECT_TRUE(fa.hasState(2));
 	EXPECT_TRUE(fa.hasState(3));
 	
-	EXPECT_FALSE(fa.isStateInitial(0));
+	EXPECT_TRUE(fa.isStateInitial(0));
 	EXPECT_TRUE(fa.isStateFinal(0));
+	EXPECT_FALSE(fa.isStateInitial(1));
+	EXPECT_TRUE(fa.isStateFinal(1));
+	EXPECT_FALSE(fa.isStateInitial(2));
 	EXPECT_FALSE(fa.isStateFinal(2));
-	EXPECT_TRUE(fa.isStateInitial(2));
+	EXPECT_FALSE(fa.isStateInitial(3));
+	EXPECT_TRUE(fa.isStateFinal(3));
 	
 	EXPECT_TRUE(fa.hasTransition(0,'a',1));
 	EXPECT_TRUE(fa.hasTransition(0,'b',3));
@@ -454,6 +458,11 @@ TEST(AutomatonTest, LanguageEmptyNoFinalState) {
   	EXPECT_TRUE(fa.isLanguageEmpty());
 }
 
+TEST(AutomatonTest, LanguageEmptyNoState) {
+  	fa::Automaton fa;
+  	EXPECT_TRUE(fa.isLanguageEmpty());
+}
+
 // test removeNonAccessibleStates
 TEST(AutomatonTest, RemoveUnaccesibleState) {
   	fa::Automaton fa;
@@ -465,6 +474,35 @@ TEST(AutomatonTest, RemoveUnaccesibleState) {
 	fa.removeNonAccessibleStates();
   	EXPECT_FALSE(fa.hasState(2));
   	EXPECT_TRUE(fa.hasState(1));
+}
+
+TEST(AutomatonTest, RemoveUnaccesibleStateWithNoInitOrFinalState) {
+  	fa::Automaton fa;
+	fa.addState(1);
+	
+	fa.removeNonAccessibleStates();
+  	EXPECT_FALSE(fa.hasState(1));
+}
+
+TEST(AutomatonTest, NoRemoveUnaccesibleStateWithOneInitialState) {
+  	fa::Automaton fa;
+	fa.addState(1);
+	fa.setStateInitial(1);
+	
+	fa.removeNonAccessibleStates();
+  	EXPECT_TRUE(fa.hasState(1));
+}
+
+TEST(AutomatonTest, NoRemoveUnaccesibleStateWithTwoInitialStates) {
+  	fa::Automaton fa;
+	fa.addState(1);
+	fa.setStateInitial(1);
+	fa.addState(2);
+	fa.setStateInitial(2);
+	
+	fa.removeNonAccessibleStates();
+  	EXPECT_TRUE(fa.hasState(1));
+  	EXPECT_TRUE(fa.hasState(2));
 }
 
 TEST(AutomatonTest, NoRemoveUnaccesibleState) {
@@ -490,6 +528,35 @@ TEST(AutomatonTest, RemoveUnCoaccessibleState) {
 	fa.removeNonCoAccessibleStates();
   	EXPECT_TRUE(fa.hasState(2));
   	EXPECT_FALSE(fa.hasState(1));
+}
+
+TEST(AutomatonTest, RemoveUnCoaccessibleStateWithNoInitOrFinalState) {
+  	fa::Automaton fa;
+	fa.addState(1);
+	
+	fa.removeNonCoAccessibleStates();
+  	EXPECT_FALSE(fa.hasState(1));
+}
+
+TEST(AutomatonTest, NoRemoveUnCoaccessibleStateWithOneFinalState) {
+  	fa::Automaton fa;
+	fa.addState(1);
+	fa.setStateFinal(1);
+	
+	fa.removeNonCoAccessibleStates();
+  	EXPECT_TRUE(fa.hasState(1));
+}
+
+TEST(AutomatonTest, NoRemoveUnCoaccessibleStateWithTwoFinalStates) {
+  	fa::Automaton fa;
+	fa.addState(1);
+	fa.setStateFinal(1);
+	fa.addState(2);
+	fa.setStateFinal(2);
+	
+	fa.removeNonCoAccessibleStates();
+  	EXPECT_TRUE(fa.hasState(1));
+  	EXPECT_TRUE(fa.hasState(2));
 }
 
 TEST(AutomatonTest, NoRemoveUnCoaccesibleState) {
@@ -526,7 +593,6 @@ TEST(AutomatonTest, CreateProduct) {
 	
 	fa::Automaton fp;
 	fp = fp.createProduct(fa,fb); // automate produit
-	fp.prettyPrint(std::cout);
 	EXPECT_TRUE(fp.hasState(1));
   	EXPECT_TRUE(fp.hasState(0));
   	EXPECT_TRUE(fp.hasTransition(0,'a',1));
@@ -641,7 +707,6 @@ TEST(AutomatonTest, createAlreadyDeterministic){
 	
 	fa::Automaton fd; // automate determinisé
 	fd = fd.createDeterministic(fa);
-	fd.prettyPrint(std::cout);
 	EXPECT_TRUE(fd.hasState(1));
 	EXPECT_TRUE(fd.hasState(2));
 	EXPECT_TRUE(fd.isStateInitial(1));
@@ -702,7 +767,6 @@ TEST(AutomatonTest, createDeterministic3){
 	
 	fa::Automaton fd; // automate determinisé
 	fd=fd.createDeterministic(fa);
-	fd.prettyPrint(std::cout);
 	EXPECT_FALSE(fd.isLanguageEmpty());
 	EXPECT_TRUE(fd.isDeterministic());
 }
