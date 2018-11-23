@@ -197,7 +197,7 @@ void fa::Automaton::prettyPrint(std::ostream& os) const{
 		os << "\tNo Transitions" << std::endl;
 	}else{
 		for(it = states.begin() ; it != states.end() ; ++it){
-		os << "\tFor state " << *it << ":" << std::endl;
+		    os << "\tFor state " << *it << ":" << std::endl;
 			for(let = alphabet.begin() ; let != alphabet.end() ; ++let){
 				os << "\t\tFor letter " << *let << ": ";
 					for(tr = transition.begin() ; tr != transition.end() ; ++tr){
@@ -210,6 +210,39 @@ void fa::Automaton::prettyPrint(std::ostream& os) const{
 		}
 	}		
 }
+
+void fa::Automaton::dotPrint(std::ostream& os) const{
+
+	std::set<int>::iterator it;	
+	std::set<char>::iterator let;
+	std::set<Transition>::iterator tr;
+	//definition du graph
+	os << "digraph {" << std::endl;
+	os << "node [shape=circle];" << std::endl;
+	
+	//etats initaux
+	if(!initialStates.empty()){
+		for(it = initialStates.begin() ; it != initialStates.end() ; ++it){
+			os << *it << "[shape=octagon];" << std::endl;
+		}
+	}
+
+    //etats finaux
+	if(!finalStates.empty()){
+		for(it = finalStates.begin() ; it != finalStates.end() ; ++it){
+			os << *it << " [shape=doublecircle];" << std::endl;
+		}
+	}
+    
+    //transitions et etats neutres
+	if(!transition.empty()){
+		for(tr = transition.begin() ; tr != transition.end() ; ++tr){
+		    os << tr->getFrom() << " -> " << tr->getTo() << " [label=\"" << tr->getAlpha() << "\"];" << std::endl; // transitions
+		}
+	}
+	os << "}" << std::endl;
+}
+
 
 bool fa::Automaton::isDeterministic() const{
 	if(initialStates.size() != 1 || finalStates.empty()){

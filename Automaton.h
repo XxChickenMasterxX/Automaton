@@ -44,6 +44,7 @@ namespace fa{
 			void removeTransition(int from, char alpha, int to);
 			std::size_t countTransitions() const;
 			std::size_t getAlphabetSize() const;
+			void dotPrint(std::ostream& os) const;
 			void prettyPrint(std::ostream& os) const;
 			bool isDeterministic() const;
 			bool isComplete() const;
