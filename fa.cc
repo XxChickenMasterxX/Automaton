@@ -47,7 +47,10 @@ int main(){
 	}else
 	    std::cerr << "fail open ! " << std::endl;
 	
+	// pour convertir le .dot en fichier image
+	// dans le terminal :
 	
+	//dot -Tpng -oGrapheTest.png GrapheTest.dot
 	
 
     return 0;
