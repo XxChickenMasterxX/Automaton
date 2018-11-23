@@ -220,10 +220,12 @@ void fa::Automaton::dotPrint(std::ostream& os) const{
 	os << "digraph {" << std::endl;
 	os << "node [shape=circle];" << std::endl;
 	
+	
 	//etats initaux
 	if(!initialStates.empty()){
 		for(it = initialStates.begin() ; it != initialStates.end() ; ++it){
-			os << *it << "[shape=octagon];" << std::endl;
+		    os << "-" << *it << " [shape=point];" << std::endl;
+			os << "-" << *it << " -> " << *it << "[weight=666];" << std::endl;
 		}
 	}
 
