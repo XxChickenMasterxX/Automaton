@@ -212,37 +212,42 @@ void fa::Automaton::prettyPrint(std::ostream& os) const{
 }
 
 void fa::Automaton::dotPrint(std::ostream& os) const{
-
+// for use in terminal : dot -Tpng -oNOMFICHIER.png NOMFICHIER.dot
 	std::set<int>::iterator it;	
 	std::set<char>::iterator let;
 	std::set<Transition>::iterator tr;
 	//definition du graph
-	os << "digraph {" << std::endl;
+	os << "digraph {" << std::endl; // ouverture
 	os << "node [shape=circle];" << std::endl;
 	
-	
 	//etats initaux
-	if(!initialStates.empty()){
-		for(it = initialStates.begin() ; it != initialStates.end() ; ++it){
+	if(!initialStates.empty())
+	{
+		for(it = initialStates.begin() ; it != initialStates.end() ; ++it)
+		{
 		    os << "-" << *it << " [shape=point];" << std::endl;
 			os << "-" << *it << " -> " << *it << "[weight=666];" << std::endl;
 		}
 	}
 
     //etats finaux
-	if(!finalStates.empty()){
-		for(it = finalStates.begin() ; it != finalStates.end() ; ++it){
+	if(!finalStates.empty())
+	{
+		for(it = finalStates.begin() ; it != finalStates.end() ; ++it)
+		{
 			os << *it << " [shape=doublecircle];" << std::endl;
 		}
 	}
     
     //transitions et etats neutres
-	if(!transition.empty()){
-		for(tr = transition.begin() ; tr != transition.end() ; ++tr){
+	if(!transition.empty())
+	{
+		for(tr = transition.begin() ; tr != transition.end() ; ++tr)
+		{
 		    os << tr->getFrom() << " -> " << tr->getTo() << " [label=\"" << tr->getAlpha() << "\"];" << std::endl; // transitions
 		}
 	}
-	os << "}" << std::endl;
+	os << "}" << std::endl; // fermeture du graph
 }
 
 
