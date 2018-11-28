@@ -393,7 +393,6 @@ void fa::Automaton::removeNonAccessibleStates(){ // cas
 			continue;
 		}
 		if(!findInitialState(*st)){
-			//removeState(*st);
 			test.insert(*st);
 		}
 		
@@ -405,13 +404,17 @@ void fa::Automaton::removeNonAccessibleStates(){ // cas
 
 void fa::Automaton::removeNonCoAccessibleStates(){
 	std::set<int>::iterator st;
+	std::set<int> test;
 	for(st = states.begin() ; st != states.end() ; ++st){
 		if(isStateFinal(*st)){
 			continue;
 		}
 		if(!findFinalState(*st)){
-			removeState(*st);
+			test.insert(*st);
 		}
+	}
+	for(st = test.begin() ; st != test.end() ; ++st){
+		removeState(*st);
 	}	
 }
 
@@ -686,12 +689,21 @@ bool fa::Automaton::isIncludedIn(const Automaton& other) const{
 Automaton fa::Automaton::createMinimalMoore(const Automaton& automaton){
 	fa::Automaton curr = automaton;
 	fa::Automaton res;
-	std::list<std::list<int>> listCongruence;
-	std::list<int> congruence;
+	std::pair<int,std::list<int>> statesWithClasse;
+	std::list<std::pair<int,std::list<int>>> Congruence;
+	std::list<std::pair<int,std::list<int>>>::iterator listSt;
+	std::list<std::pair<int,std::list<int>>>::iterator sameSt;
+	std::list<std::pair<int,std::list<int>>>::iterator sameSt2;
+	std::list<std::list<std::pair<int,std::list<int>>>> listCongruence;
+	std::list<std::list<std::pair<int,std::list<int>>>>::iterator cong;
 	std::set<Transition>::iterator tr;
 	std::set<char>::iterator alpha;
-	std::list<int>::iterator st;
+	std::set<int>::iterator st;
+	std::list<int>::iterator stateParam;
 	bool sameCongruence = false;
+	bool uniqueCongruence = true;
+	bool newClasse = true;
+	int numClasse = 0;
 
 	if(!curr.isDeterministic()){
 		curr = createDeterministic(curr);
@@ -699,18 +711,92 @@ Automaton fa::Automaton::createMinimalMoore(const Automaton& automaton){
 	if(!curr.isComplete()){
 		curr.makeComplete();
 	}
+
+	for(alpha = automaton.alphabet.begin() ; alpha != automaton.alphabet.end() ; ++alpha){ 
+		res.alphabet.insert(*alpha);
+	}
 	
-	while(!sameCongruence){
-		for(alpha = automaton.alphabet.begin() ; alpha != automaton.alphabet.end() ; ++alpha){
-			for(st = congruence.begin() ; st != congruence.end() ; ++st){
-				for(tr = automaton.transition.begin() ; tr != automaton.transition.end() ; ++tr){
-					if(tr->getFrom() == *st && tr->getAlpha() == *alpha){
-					
-					} 
+	for(alpha = res.alphabet.begin() ; alpha != res.alphabet.end() ; ++alpha){
+		for(st = curr.states.begin() ; st != curr.states.end() ; ++st){
+			for(tr = automaton.transition.begin() ; tr != automaton.transition.end() ; ++tr){
+				if(automaton.isStateFinal(tr->getFrom())){
+					statesWithClasse.first = 1;
+				}
+				if(automaton.isStateFinal(tr->getTo())){
+					statesWithClasse.second.push_back(2);
+				}else{
+					statesWithClasse.second.push_back(1);
 				}
 			}
-		}
+		}	
 	}
+
+	Congruence.push_back(statesWithClasse);
+	statesWithClasse.second.clear();
+	
+	while(!sameCongruence){
+		uniqueCongruence = true;
+		newClasse = true;
+		numClasse = 0;
+		for(tr = automaton.transition.begin() ; tr != automaton.transition.end() ; ++tr){
+			statesWithClasse.second.push_back(tr->getTo());
+					
+				}
+				for(listSt = Congruence.begin() ; listSt != Congruence.end() ; ++listSt){
+					if(listSt->second == statesWithClasse.second){
+						statesWithClasse.first = listSt->first;
+						newClasse = false;
+						break;
+					}
+				}
+				if(newClasse){
+					statesWithClasse.first = numClasse;
+					++numClasse;
+				} 
+				Congruence.push_back(statesWithClasse);
+				statesWithClasse.second.clear();
+
+		for(sameSt = Congruence.begin() ; sameSt != Congruence.end() ; ++sameSt){
+			for(sameSt2 = ++sameSt ; sameSt2 != Congruence.end() ; ++sameSt2){
+				if(*sameSt == *sameSt2){
+					uniqueCongruence == false;
+				}					
+			}
+		}
+
+		if(uniqueCongruence){
+			break;
+		}	
+		
+		for(cong = listCongruence.begin() ; cong != listCongruence.end() ; ++cong){
+			if(*cong == Congruence){
+				sameCongruence == true;
+			}
+		}
+				
+	}
+
+	if(uniqueCongruence){
+		return curr;
+	}
+
+	//Congruence = --listCongruence.end();
+	/*for(listSt = Congruence.begin() ; listSt != Congruence.end() ; ++listSt){
+		if(res.hasState(listSt->first)){
+			continue;
+		}
+		res.addState(listSt->first));
+		for(stateParam = listSt->first.begin() ; stateParam != listSt->first.end() ; ++stateParam){
+			if(automaton.isStateInitial(*stateParam)){
+				res.setStateInitial(listSt->first);
+			}	
+			if(automaton.isStateFinal(*stateParam)){
+				res.setStateFinal(listSt->first);
+			}
+			
+		}
+		
+	}*/
 	res.alphabet = automaton.alphabet;
 	return res;
 }
