@@ -1,0 +1,144 @@
+//-------------------------------------------------------------------------
+//--------------------- Liste de Test pour automaton ----------------------
+//-------------------------------------------------------------------------
+
+//			void addState(int state);
+	apres ajout = etat present
+	ajout d'un etat deja present = etat present
+
+//			void removeState(int state);
+	etat non present = etat non present
+	etat present = etat non present
+	plusieurs etats present = seul l'etat a ete retirer 
+
+
+//			bool hasState(int state) const;
+	apres ajout = etat present
+	sans ajout = etat non present
+	
+
+//			std::size_t countStates() const;
+	sans etat = 0
+	apres un ajout = 1
+	apres un ajout et une suppression = 0
+
+//		void setStateInitial(int state);
+	sans etat = error
+	un etat = etat present ET etat initial
+	etat final = etat present ET final ET etat initial
+	etat deja initial = etat present ET etat initial
+
+//			bool isStateInitial(int state) const;
+	sans etat = false
+	avec un etat non initial et non final = false
+	avec un etat non initial et final = false
+	avec un etat initial et non final = true
+	avec un etat initial et final = true
+
+//			void setStateFinal(int state);
+	sans etat = error
+	un etat = etat present ET etat final
+	etat initial = etat present ET final ET etat initial
+	etat deja final = etat present ET etat final
+
+//			bool isStateFinal(int state) const;
+	sans etat = false
+	avec un etat non initial et non final = false
+	avec un etat non initial et final = true
+	avec un etat initial et non final = false
+	avec un etat initial et final = true
+
+//			void addTransition(int from, char alpha, int to);
+	sans etats (etat invalide) = transition non presente
+	un etat transition sur lui meme = transition presente
+	deux etat transition de l'un a l'autre = transition presente
+	ajout transition avec caractere speciaux (char)1000 = transition non presente
+	etat final transition sur lui meme = transition presente
+	etat initial transition sur lui meme = transition presente
+	etat final trans etat quelconque = transition presente
+	etat initial trans etat quelconque = transition presente
+	etat final trans etat final = transition presente
+	etat initial trans etat initial = transition presente
+	etat final trans etat initial = transition presente
+	etat initial trans etat final = transition presente
+	etat quelconque trans etat initial = transition presente
+	etat quelconque trans etat final = transition presente
+
+//			bool hasTransition(int from, char alpha, int to) const;
+	sans etats = false
+	etat valide -> etat invalide = false
+	un etat transition sur lui meme = true
+	deux etat transition de l'un a l'autre = true
+	ajout transition avec caractere speciaux (char)1000 = false
+
+//			void removeTransition(int from, char alpha, int to);
+	sans etat = transition non presente
+	suppression transition sur un etat = transition non presente
+	suppression transition entre 2 etat = transition non presente
+	supression d'une transition 1 etat inexistant = transition non presente
+	supression d'une transition valide avec char invalide = transition non presente
+
+//			std::size_t countTransitions() const;
+	sans etat = 0
+	1 etat sans transition = 0
+	1 etat 1 transition = 1
+	2 etats 1 transition entre les 2 = 1
+	2 etats 1 transition entre les 2,suppression transition = 0
+	1 etats 1 transition ,suppression 1 etat = 0
+	2 etats 1 transition entre les 2,suppression 1 etat = 0
+	2 etats 1 transition entre les 2,suppression 2 etats = 0
+
+//			std::size_t getAlphabetSize() const;
+	sans etat = 0
+	1 etat sans transition = 0
+	2 etats 1 transition entre les 2 = 1
+	2 etats 1 transition entre les 2,suppression transition = 1
+	2 etats 2 transition entre eux avec meme char = 1
+	2 etats 2 transition entre eux avec meme char, suppression d'une transition = 1
+	2 etats 2 transition entre eux avec meme char, suppression des transitions = 1
+	2 etats 2 transition entre eux char different = 2
+	2 etats 2 transition entre eux char different, suppression d'une transition = 2
+	2 etats 2 transition entre eux char different, suppression des transition = 2
+	 
+
+//			void dotPrint(std::ostream& os) const;
+	non teste
+	
+//			void prettyPrint(std::ostream& os) const;
+	non teste
+	
+//			bool isDeterministic() const;
+	
+
+bool isComplete() const;
+	
+void makeComplete();
+
+void makeComplement();
+
+bool isLanguageEmpty() const;
+
+void removeNonAccessibleStates();
+
+void removeNonCoAccessibleStates();
+
+static Automaton createProduct(const Automaton& lhs, const Automaton& rhs);
+
+bool hasEmptyIntersectionWith(const Automaton& other) const;
+
+std::set<int> readString(const std::string& word) const;
+
+bool match(const std::string& word) const;
+
+static Automaton createDeterministic(const Automaton& automaton);
+
+bool isIncludedIn(const Automaton& other) const;
+
+static Automaton createMinimalMoore(const Automaton& automaton);
+
+static Automaton createMinimalBrzozowski(const Automaton& automaton);
+
+static Automaton createMinimalHopcroft(const Automaton& automaton);
+
+static Automaton createWithoutEpsilon(const Automaton& automaton);
+
