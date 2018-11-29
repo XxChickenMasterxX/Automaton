@@ -110,17 +110,52 @@
 //			bool isDeterministic() const;
 	
 
-bool isComplete() const;
+//			bool isComplete() const;
+	automat vide = false
+	automat complet = true
+	automat incomplet = false
 	
-void makeComplete();
+//			void makeComplete();
+	automat vide = automat vide
+	automat incomplet = automat complet
+	automat complet = automat complet
 
-void makeComplement();
+//			void makeComplement();
+	automat vide = automat vide
+	automat incomplet = meme automat
+	automat complet = automat complementaire
 
-bool isLanguageEmpty() const;
+//			bool isLanguageEmpty() const;
+	automat vide = true
+	automat sans transition = true
+	automat avec transition = false
 
-void removeNonAccessibleStates();
-
-void removeNonCoAccessibleStates();
+//			void removeNonAccessibleStates();
+	etat inexistant
+	1 etat quelconque = automat vide
+	1 etat init = 1 etat init
+	1 init + tansit lui meme = 1 etat init
+	1 final = vide
+	1 final + transit lui meme = vide
+	1 etat quelconque + 1 init = 1 init
+	1 etat final + 1 init = 1 init
+	1 etat final + 1 init + 1 quelconque = 1 init
+	1 etat quelconque + 1 init + transition entre eux = 1 init + 1 etat quelconque
+	1 etat final + 1 init + transition entre eux= 1 init + 1 etat final
+	1 etat init -> 1 quelconque -> 1 final transition entre chaque = 1 etat init -> 1 quelconque -> 1 final
+	
+//			void removeNonCoAccessibleStates();
+	etat inexistant
+	1 etat quelconque = automat vide
+	1 init = automat vide
+	1 init + tansit lui meme = vide
+	1 final = 1 final
+	1 final + transit lui meme = 1 final
+	1 init + 1 final = 1 final
+	1 init + 1 quelconque + 1 final = 1 final
+	1 init + 1 final + transition entre eux = 1 init + 1 final 
+	1 init + 1 quelconque + 1 final + transition entre chaque = 1 init + 1 quelconque + 1 final 
+	
 
 static Automaton createProduct(const Automaton& lhs, const Automaton& rhs);
 
