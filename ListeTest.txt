@@ -3,30 +3,30 @@
 //-------------------------------------------------------------------------
 
 //			void addState(int state);
-	apres ajout = etat present
-	ajout d'un etat deja present = etat present
+OK	apres ajout = etat present
+OK	ajout d'un etat deja present = etat present
 
 //			void removeState(int state);
-	etat non present = etat non present
-	etat present = etat non present
-	plusieurs etats present = seul l'etat a ete retirer 
+OK	etat non present = etat non present
+OK	etat present = etat non present
+OK	plusieurs etats present = seul l'etat a ete retirer 
 
 
 //			bool hasState(int state) const;
-	apres ajout = etat present
-	sans ajout = etat non present
+OK	apres ajout = etat present
+OK	sans ajout = etat non present
 	
 
 //			std::size_t countStates() const;
-	sans etat = 0
-	apres un ajout = 1
-	apres un ajout et une suppression = 0
+OK	sans etat = 0
+OK	apres un ajout = 1
+OK	apres un ajout et une suppression = 0
 
 //		void setStateInitial(int state);
 	sans etat = error
-	un etat = etat present ET etat initial
-	etat final = etat present ET final ET etat initial
-	etat deja initial = etat present ET etat initial
+OK	un etat = etat present ET initial
+OK	etat final = etat present ET final ET etat initial
+OK	etat deja initial = etat present ET etat initial
 
 //			bool isStateInitial(int state) const;
 	sans etat = false
@@ -108,10 +108,15 @@
 	non teste
 	
 //			bool isDeterministic() const;
+	automat vide = false
+	1 etat quelconque sans transition = false
+	1 etat final = false
+	1 etat initial = true
+	2 etat initial = false
 	
 
 //			bool isComplete() const;
-	automat vide = false
+	automat vide = true
 	automat complet = true
 	automat incomplet = false
 	
@@ -157,23 +162,54 @@
 	1 init + 1 quelconque + 1 final + transition entre chaque = 1 init + 1 quelconque + 1 final 
 	
 
-static Automaton createProduct(const Automaton& lhs, const Automaton& rhs);
+// 			static Automaton createProduct(const Automaton& lhs, const Automaton& rhs);
+	automat quelconque * automat vide = automat vide
+	language 1 * language 2 = l1 U l2
+!!!	completer
+	
+//			bool hasEmptyIntersectionWith(const Automaton& other) const;
+	transition inexistante = false
+	transition sur lui meme = true
+	transition d'un etat existant a un etat inexistant = false
+	transition d'un etat inexistant a un etat existant = false
+	transition entre 2 etat existant =true
 
-bool hasEmptyIntersectionWith(const Automaton& other) const;
+//			std::set<int> readString(const std::string& word) const;
+	automat vide = set vide
+	automat reconaissant L ; mot du language L = set des etats par ou passe le mot
 
-std::set<int> readString(const std::string& word) const;
 
-bool match(const std::string& word) const;
+//			bool match(const std::string& word) const;
+	Language vide ; mot vide= true
+	Language vide ; mot non vide= false
+	Language non vide ; mot vide= false
+	Language L ; mot du language L = true
 
 static Automaton createDeterministic(const Automaton& automaton);
+	automat vide = automat non determinist
+	automat determinist = automat determinist
+	automat non determinist = automat determinist
 
-bool isIncludedIn(const Automaton& other) const;
+//			bool isIncludedIn(const Automaton& other) const;
+	language vide U language vide = true
+	language vide U language non vide = true
+	language non vide U language vide = false
+	language L['a'] U language L['a','b'] = true
+	language L['a','b'] U language L['a'] = false
 
-static Automaton createMinimalMoore(const Automaton& automaton);
 
-static Automaton createMinimalBrzozowski(const Automaton& automaton);
-
-static Automaton createMinimalHopcroft(const Automaton& automaton);
-
-static Automaton createWithoutEpsilon(const Automaton& automaton);
+//			static Automaton createMinimalMoore(const Automaton& automaton);
+	automat vide = automat vide
+	1 etat init = 1 etat init
+	tester assertion
+	
+//			static Automaton createMinimalBrzozowski(const Automaton& automaton);
+	idem createMinimalMoore
+	
+//			static Automaton createMinimalHopcroft(const Automaton& automaton);
+	idem createMinimalMoore
+	
+//			static Automaton createWithoutEpsilon(const Automaton& automaton);
+	automat vide = aplhabet contient pas le code ascii 0
+	1 etat init -> 1 etat quelconque -> 1 etat final = aplhabet contient pas le code ascii 0
 

@@ -5,7 +5,7 @@
 
 #include "Automaton.h"
 
-TEST(AutomatonTest, Empty) {
+TEST(AutomatonTest, Empty) {	
   	fa::Automaton fa;
 
   	EXPECT_EQ(fa.countStates(), 0u);
@@ -17,7 +17,9 @@ TEST(AutomatonTest, Empty) {
 ----------- TEST STATE -----------------
 */
 
-// test addState
+//--------------------------------------------------------
+//---------------------- addState ------------------------
+//--------------------------------------------------------
 TEST(AutomatonTest, AddState) {
 	fa::Automaton fa;
 	fa.addState(1);
@@ -25,7 +27,19 @@ TEST(AutomatonTest, AddState) {
 	EXPECT_EQ(fa.countTransitions(), 0u);
 }
 
-// test removeState
+TEST(AutomatonTest, AddStateAlreadyAdded) {
+	fa::Automaton fa;
+	fa.addState(1);
+	EXPECT_EQ(fa.countStates(), 1u);
+	EXPECT_EQ(fa.countTransitions(), 0u);
+	fa.addState(1);
+	EXPECT_EQ(fa.countStates(), 1u);
+	EXPECT_EQ(fa.countTransitions(), 0u);
+}
+
+//--------------------------------------------------------
+//-------------------- removeState -----------------------
+//--------------------------------------------------------
 TEST(AutomatonTest, RemovePresentState) {
 	fa::Automaton fa;
 	fa.addState(1);
@@ -41,22 +55,55 @@ TEST(AutomatonTest, RemoveNotPresentState) {
 	EXPECT_EQ(fa.countTransitions(), 0u);
 }
 
-// test hasState
+TEST(AutomatonTest, RemoveJustTheSpecifiedState) {
+	fa::Automaton fa;
+	fa.addState(1);
+	fa.addState(0);
+	fa.removeState(1);
+	EXPECT_EQ(fa.countStates(), 0u);
+	EXPECT_EQ(fa.countTransitions(), 0u);
+}
+
+//--------------------------------------------------------
+//---------------------- hasState ------------------------
+//--------------------------------------------------------
 TEST(AutomatonTest, hasStateTrue) {
 	fa::Automaton fa;
 	fa.addState(1);
 	EXPECT_TRUE(fa.hasState(1));
+	EXPECT_EQ(fa.countStates(), 1u);
 	EXPECT_EQ(fa.countTransitions(), 0u);
 }
 
 TEST(AutomatonTest, hasStateFalse) {
 	fa::Automaton fa;
 	EXPECT_FALSE(fa.hasState(1));
+	EXPECT_EQ(fa.countStates(), 0u);
 	EXPECT_EQ(fa.countTransitions(), 0u);
 }
 
-// test countState
-TEST(AutomatonTest, countState) {
+//--------------------------------------------------------
+//--------------------- countState -----------------------
+//--------------------------------------------------------
+TEST(AutomatonTest, Count0State) {
+	fa::Automaton fa;
+	EXPECT_EQ(fa.countStates(), 0u);
+}
+
+TEST(AutomatonTest, Count1State) {
+	fa::Automaton fa;
+	fa.addState(1);
+	EXPECT_EQ(fa.countStates(), 1u);
+}
+
+TEST(AutomatonTest, Count1StateThenRemove) {
+	fa::Automaton fa;
+	fa.addState(1);
+	fa.removeState(1);
+	EXPECT_EQ(fa.countStates(), 0u);
+}
+
+TEST(AutomatonTest, countManyState) {
 	fa::Automaton fa;
 	fa.addState(1);
 	fa.addState(2);
@@ -68,11 +115,71 @@ TEST(AutomatonTest, countState) {
 	EXPECT_EQ(fa.countTransitions(), 0u);
 }
 
-// test setStateInitial
-TEST(AutomatonTest, setStateInitial) {
+TEST(AutomatonTest, countManyStateThenRemoveOne) {
+	fa::Automaton fa;
+	fa.addState(1);
+	fa.addState(2);
+	fa.addState(3);
+	EXPECT_EQ(fa.countStates(), 3u);
+	fa.removeState(1);
+	EXPECT_EQ(fa.countStates(), 2u);
+}
+
+TEST(AutomatonTest, countManyStateThenRemoveAll) {
+	fa::Automaton fa;
+	fa.addState(1);
+	fa.addState(2);
+	fa.addState(3);
+	EXPECT_EQ(fa.countStates(), 3u);
+	fa.removeState(1);
+	fa.removeState(2);
+	fa.removeState(3);
+	EXPECT_EQ(fa.countStates(), 0u);
+}
+
+//--------------------------------------------------------
+//------------------- setStateInitial --------------------
+//--------------------------------------------------------
+TEST(AutomatonTest, setStateInitialGhost) {
+	fa::Automaton fa;
+	EXPECT_DEATH(fa.setStateInitial(1), "a modif");
+	EXPECT_EQ(fa.countStates(), 0u);
+	EXPECT_FALSE(fa.hasState(1));
+	EXPECT_FALSE(fa.isStateInitial(1));
+}
+
+TEST(AutomatonTest, setStateInitialOne) {
 	fa::Automaton fa;
 	fa.addState(1);
 	fa.setStateInitial(1);
+	EXPECT_EQ(fa.countStates(), 1u);
+	EXPECT_TRUE(fa.hasState(1));
+	EXPECT_TRUE(fa.isStateInitial(1));
+}
+
+TEST(AutomatonTest, setStateInitialWhenIsAlreadyFinal) {
+	fa::Automaton fa;
+	fa.addState(1);
+	fa.setStateFinal(1);
+	
+	fa.setStateInitial(1);
+	
+	EXPECT_TRUE(fa.isStateFinal(1));
+	EXPECT_EQ(fa.countStates(), 1u);
+	EXPECT_TRUE(fa.hasState(1));
+	EXPECT_TRUE(fa.isStateInitial(1));
+}
+
+TEST(AutomatonTest, setAlreadyInitialState) {
+	fa::Automaton fa;
+	fa.addState(1);
+	fa.setStateInitial(1);
+	EXPECT_EQ(fa.countStates(), 1u);
+	EXPECT_TRUE(fa.hasState(1));
+	EXPECT_TRUE(fa.isStateInitial(1));
+	fa.setStateInitial(1);
+	EXPECT_EQ(fa.countStates(), 1u);
+	EXPECT_TRUE(fa.hasState(1));
 	EXPECT_TRUE(fa.isStateInitial(1));
 }
 
@@ -785,5 +892,6 @@ TEST(AutomatonTest, createDeterministic3){
 
 int main(int argc, char **argv) {
 ::testing::InitGoogleTest(&argc, argv);
+::testing::FLAGS_gtest_death_test_style="threadsafe";
   	return RUN_ALL_TESTS();
 }
