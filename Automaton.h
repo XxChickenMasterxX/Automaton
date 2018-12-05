@@ -16,6 +16,8 @@ namespace fa{
 			int getFrom() const;
 			char getAlpha() const;
 			int getTo() const;
+			void setFrom(int st);
+			void setTo(int st);
 		private:
 			int from;
 			char alpha;
@@ -29,6 +31,7 @@ namespace fa{
 			bool findInitialState(int state) const;
 			void createProductRec(const Automaton& lhs, const Automaton& rhs, int rhsState, int lhsState, Automaton& res, int fromState, std::list<std::list<int>> coupleList);
 			void createDeterministicRec(const Automaton& automaton, std::set<int> currStates, std::list<std::set<int>> stateList, Automaton& res, int stateFrom);
+			static Automaton sortStates(const Automaton& automaton);
 /************************************************************************/
 
             void addState(int state);

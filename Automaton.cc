@@ -214,11 +214,10 @@ void fa::Automaton::prettyPrint(std::ostream& os) const{
 void fa::Automaton::dotPrint(std::ostream& os) const{
 // for use in terminal : dot -Tpng -oNOMFICHIER.png NOMFICHIER.dot
 	std::set<int>::iterator it;	
-	std::set<char>::iterator let;
 	std::set<Transition>::iterator tr;
 	//definition du graph
 	os << "digraph {" << std::endl; // ouverture
-	os << "node [shape=circle];" << std::endl;
+	os << "node [shape=circle]\nrankdir=LR;" << std::endl;
 	
 	//etats initaux
 	if(!initialStates.empty())
@@ -226,7 +225,7 @@ void fa::Automaton::dotPrint(std::ostream& os) const{
 		for(it = initialStates.begin() ; it != initialStates.end() ; ++it)
 		{
 		    os << "-" << *it << " [shape=point];" << std::endl;
-			os << "-" << *it << " -> " << *it << "[weight=666];" << std::endl;
+			os << "-" << *it << " -> " << *it << ";" << std::endl;
 		}
 	}
 
@@ -605,7 +604,7 @@ bool fa::Automaton::match(const std::string& word) const{
 	return !readString(word).empty();
 }
 
-Automaton fa::Automaton::createDeterministic(const Automaton& automaton){
+fa::Automaton fa::Automaton::createDeterministic(const Automaton& automaton){
 	if(automaton.isDeterministic() || automaton.isLanguageEmpty()){
 		return automaton;
 	}
@@ -687,23 +686,24 @@ bool fa::Automaton::isIncludedIn(const Automaton& other) const{
 }
 
 Automaton fa::Automaton::createMinimalMoore(const Automaton& automaton){
-	fa::Automaton curr = automaton;
+	fa::Automaton curr = sortStates(automaton);
 	fa::Automaton res;
-	std::pair<int,std::list<int>> statesWithClasse;
-	std::list<std::pair<int,std::list<int>>> Congruence;
-	std::list<std::pair<int,std::list<int>>>::iterator listSt;
-	std::list<std::pair<int,std::list<int>>>::iterator sameSt;
-	std::list<std::pair<int,std::list<int>>>::iterator sameSt2;
-	std::list<std::list<std::pair<int,std::list<int>>>> listCongruence;
-	std::list<std::list<std::pair<int,std::list<int>>>>::iterator cong;
+	std::pair<std::pair<int,int>,std::list<int>> statesWithClasse;
+	std::list<std::pair<std::pair<int,int>,std::list<int>>> Congruence;
+	std::list<std::pair<std::pair<int,int>,std::list<int>>>::iterator listSt;
+	std::list<std::pair<std::pair<int,int>,std::list<int>>>::iterator listSt2;
+	std::list<std::list<std::pair<std::pair<int,int>,std::list<int>>>> listCongruence;
+	std::list<std::list<std::pair<std::pair<int,int>,std::list<int>>>>::iterator cong;
 	std::set<Transition>::iterator tr;
 	std::set<char>::iterator alpha;
 	std::set<int>::iterator st;
 	std::list<int>::iterator stateParam;
 	bool sameCongruence = false;
-	bool uniqueCongruence = true;
-	bool newClasse = true;
-	int numClasse = 0;
+	bool alreadyMinimal = false;
+	bool newClasse;
+	size_t numClasse = 1;
+	std::list<std::list<int>> listCurrStates;
+	std::list<int> states;
 
 	if(!curr.isDeterministic()){
 		curr = createDeterministic(curr);
@@ -712,93 +712,171 @@ Automaton fa::Automaton::createMinimalMoore(const Automaton& automaton){
 		curr.makeComplete();
 	}
 
-	for(alpha = automaton.alphabet.begin() ; alpha != automaton.alphabet.end() ; ++alpha){ 
+	res.alphabet = curr.alphabet;
+	/*for(alpha = automaton.alphabet.begin() ; alpha != automaton.alphabet.end() ; ++alpha){ 
 		res.alphabet.insert(*alpha);
-	}
-	
-	for(alpha = res.alphabet.begin() ; alpha != res.alphabet.end() ; ++alpha){
-		for(st = curr.states.begin() ; st != curr.states.end() ; ++st){
-			for(tr = automaton.transition.begin() ; tr != automaton.transition.end() ; ++tr){
-				if(automaton.isStateFinal(tr->getFrom())){
-					statesWithClasse.first = 1;
-				}
-				if(automaton.isStateFinal(tr->getTo())){
-					statesWithClasse.second.push_back(2);
-				}else{
-					statesWithClasse.second.push_back(1);
-				}
-			}
-		}	
-	}
+	}*/
 
-	Congruence.push_back(statesWithClasse);
-	statesWithClasse.second.clear();
-	
-	while(!sameCongruence){
-		uniqueCongruence = true;
+	for(st = curr.states.begin() ; st != curr.states.end() ; ++st){
 		newClasse = true;
-		numClasse = 0;
-		for(tr = automaton.transition.begin() ; tr != automaton.transition.end() ; ++tr){
-			statesWithClasse.second.push_back(tr->getTo());
+		statesWithClasse.first.first = 1;
+		statesWithClasse.first.second = *st;
+		for(alpha = curr.alphabet.begin() ; alpha != curr.alphabet.end() ; ++alpha){ 
+			if(curr.isStateFinal(*st)){
+				statesWithClasse.second.push_back(2);
+			}else{
+				statesWithClasse.second.push_back(1);
+			}
+		}
+
+		for(listSt = Congruence.begin() ; listSt != Congruence.end() ; ++listSt){
+			if(statesWithClasse.second == listSt->second){
+				statesWithClasse.first.first = listSt->first.first;
+				newClasse = false;
+				break;
+			}
+		}
+			
+		if(newClasse){
+			statesWithClasse.first.first = numClasse;
+			++numClasse;
+		}
+			
+
+		Congruence.push_back(statesWithClasse);
+		statesWithClasse.second.clear();
+	}
+	listCongruence.push_back(Congruence);
+
+	while(!sameCongruence){
+		Congruence.clear();
+		numClasse = 1;
+		newClasse = true;
+
+		for(st = curr.states.begin() ; st != curr.states.end() ; ++st){	
+			statesWithClasse.first.first = numClasse;
+			statesWithClasse.first.second = *st;	
+			for(alpha = curr.alphabet.begin() ; alpha != curr.alphabet.end() ; ++alpha){
 					
-				}
-				for(listSt = Congruence.begin() ; listSt != Congruence.end() ; ++listSt){
-					if(listSt->second == statesWithClasse.second){
-						statesWithClasse.first = listSt->first;
-						newClasse = false;
-						break;
+				for(tr = automaton.transition.begin() ; tr != automaton.transition.end() ; ++tr){
+					for(cong = listCongruence.end()-- ; cong != listCongruence.end() ; ++cong){
+						for(listSt = std::next((*cong).begin(),*st) ; listSt != (*cong).end() ; ++listSt){//Maraboutage de haut niveau
+							statesWithClasse.second.push_back(listSt->first.first);
+							break;
+						}
 					}
 				}
-				if(newClasse){
-					statesWithClasse.first = numClasse;
-					++numClasse;
-				} 
-				Congruence.push_back(statesWithClasse);
-				statesWithClasse.second.clear();
-
-		for(sameSt = Congruence.begin() ; sameSt != Congruence.end() ; ++sameSt){
-			for(sameSt2 = ++sameSt ; sameSt2 != Congruence.end() ; ++sameSt2){
-				if(*sameSt == *sameSt2){
-					uniqueCongruence == false;
-				}					
 			}
+
+			for(listSt = Congruence.begin() ; listSt != Congruence.end() ; ++listSt){
+				if(statesWithClasse.second == listSt->second){
+					statesWithClasse.first.first = listSt->first.first;
+					newClasse = false;
+					break;
+				}
+			}
+			
+			if(newClasse){
+				statesWithClasse.first.first = numClasse;
+				++numClasse;
+			}
+			
+			Congruence.push_back(statesWithClasse);
+			statesWithClasse.second.clear();	
 		}
 
-		if(uniqueCongruence){
-			break;
-		}	
-		
-		for(cong = listCongruence.begin() ; cong != listCongruence.end() ; ++cong){
-			if(*cong == Congruence){
-				sameCongruence == true;
+		if(numClasse == res.states.size()){
+			alreadyMinimal = true;
+			break;	
+		}
+	
+		sameCongruence = true;
+		for(cong = listCongruence.end()-- ; cong != listCongruence.end() ; ++cong){
+			for(listSt = (*cong).begin() ; listSt != (*cong).end() ; ++listSt){
+				for(listSt2 = Congruence.begin() ; listSt2 != Congruence.end() ; ++listSt2){
+					if(listSt->first.first != listSt2->first.first){
+						sameCongruence = false;
+					}
+				}				
 			}
 		}
+	
+		listCongruence.push_back(Congruence);
 				
 	}
 
-	if(uniqueCongruence){
-		return curr;
+	if(alreadyMinimal){
+		return automaton;
+	}
+
+	for(size_t i = 0 ; i < numClasse ; ++i){
+		res.addState(i);
+	}
+
+	for(cong = listCongruence.end()-- ; cong != listCongruence.end() ; ++cong){
+		for(listSt = (*cong).begin() ; listSt != (*cong).end() ; ++listSt){
+			std::cout << "test" << std::endl;
+			if(curr.isStateInitial(listSt->first.second)){
+				res.setStateInitial(listSt->first.first);
+			}
+			if(curr.isStateFinal(listSt->first.second)){
+				res.setStateFinal(listSt->first.first);
+			}
+		}
+	}
+
+
+	for(cong = listCongruence.end()-- ; cong != listCongruence.end() ; ++cong){
+		for(listSt = (*cong).begin() ; listSt != (*cong).end() ; ++listSt){
+			for(alpha = res.alphabet.begin() ; alpha != res.alphabet.end() ; ++alpha){
+				/*res.addTransition(listSt->first.first,*alpha,listSt->second)				
+
+				int test = std::distance(cong.second.begin(), cong.second.find(tr->getFrom()));
+				int from = std::distance(res.states.begin(), automaton.states.find(tr->getFrom()));
+				int to = std::distance(res.states.begin(), automaton.states.find(tr->getFrom()));
+				res.addTransition(*/
+			}						
+		}
 	}
 
 	//Congruence = --listCongruence.end();
-	/*for(listSt = Congruence.begin() ; listSt != Congruence.end() ; ++listSt){
-		if(res.hasState(listSt->first)){
-			continue;
-		}
-		res.addState(listSt->first));
-		for(stateParam = listSt->first.begin() ; stateParam != listSt->first.end() ; ++stateParam){
-			if(automaton.isStateInitial(*stateParam)){
-				res.setStateInitial(listSt->first);
-			}	
-			if(automaton.isStateFinal(*stateParam)){
-				res.setStateFinal(listSt->first);
-			}
-			
-		}
-		
-	}*/
-	res.alphabet = automaton.alphabet;
+
 	return res;
 }
-	
+
+Automaton fa::Automaton::sortStates(const Automaton& automaton){
+	std::set<Transition>::iterator tr;
+	std::set<int>::iterator st;
+	Automaton res;
+
+	for(st = automaton.states.begin() ; st != automaton.states.end() ; ++st){
+		int newState = res.states.size();
+		res.addState(newState);
+
+		if(automaton.isStateInitial(*st)){
+			res.setStateInitial(newState);
+		}
+
+		if(automaton.isStateFinal(*st)){
+			res.setStateFinal(newState);
+		}
+	}
+
+	for(tr = automaton.transition.begin() ; tr != automaton.transition.end() ; ++tr){
+		int from = std::distance(automaton.states.begin(), automaton.states.find(tr->getFrom()));
+		int to = std::distance(automaton.states.begin(), automaton.states.find(tr->getTo()));
+		res.addTransition(from,tr->getAlpha(),to);				
+	}
+		
+	return res;
+}
+
+void fa::Transition::setFrom(int st){
+	from = st;
+}
+
+void fa::Transition::setTo(int st){
+	to = st;	
+}
+
 }
