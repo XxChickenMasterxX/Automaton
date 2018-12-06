@@ -92,7 +92,7 @@ fa::Transition::Transition(int from, char alpha, int to){
 void fa::Automaton::addTransition(int from, char alpha, int to){
 	assert(hasState(from) != false);
 	assert(hasState(to) != false);
-	assert(isprint(alpha) != false);
+	//assert(isprint(alpha) != false);
 		
 	Transition t(from, alpha, to);
 	transition.insert(t);
@@ -834,4 +834,42 @@ void fa::Transition::setTo(int st){
 	to = st;	
 }
 
+Automaton fa::Automaton::createWithoutEpsilon(const Automaton& automaton){
+	std::set<Transition>::iterator tr;
+	std::set<int>::iterator st;
+	std::set<char>::iterator alpha;
+	Automaton res = automaton;
+	
+	for(tr = res.transition.begin() ; tr != res.transition.end() ; ++tr){
+		std::cout << tr->getFrom() << std::endl;
+		if(tr->getAlpha() == '\0'){
+			res.removeTransition(tr->getFrom(),tr->getAlpha(),tr->getTo());
+			res = res.createWithoutEpsilonRec(res, tr->getFrom(), tr->getTo());
+			tr = res.transition.begin();
+		}	
+	}
+	 
+	
+	return res;
+}
+
+Automaton fa::Automaton::createWithoutEpsilonRec(const Automaton& automaton, int from, int to){
+	std::set<Transition>::iterator tr;
+	Automaton res = automaton;
+
+	for(tr = res.transition.begin() ; tr != res.transition.end() ; ++tr){
+		if(tr->getFrom() == to){
+			if(tr->getAlpha() == '\0'){
+				res = res.createWithoutEpsilonRec(res, from, tr->getTo());
+			}else{
+				res.addTransition(from, tr->getAlpha(), tr->getTo());
+				if(res.isStateFinal(tr->getTo())){
+					res.setStateFinal(from);
+				}
+			}
+		}
+	}
+			
+	return res;
+}
 }
