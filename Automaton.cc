@@ -697,16 +697,19 @@ Automaton fa::Automaton::createMinimalMoore(const Automaton& automaton){
 	std::set<Transition>::iterator tr;
 	std::set<char>::iterator alpha;
 	std::set<int>::iterator st;
-	std::list<int>::iterator stateParam;
+	std::list<int> verifSameCong;
+	std::list<int> verifSameCong2;	
+	std::list<int>::iterator listState;	
 	bool sameCongruence = false;
 	bool alreadyMinimal = false;
 	bool newClasse;
 	size_t numClasse = 1;
 	std::list<std::list<int>> listCurrStates;
-	std::list<int> states;
+	std::list<int>::iterator states;
+	int x = 0;
 
-	if(!curr.isDeterministic()){
-		curr = createDeterministic(curr);
+	if(!curr.isDeterministic() || !curr.isComplete()){
+		//a faire assert
 	} 
 	if(!curr.isComplete()){
 		curr.makeComplete();
@@ -722,12 +725,17 @@ Automaton fa::Automaton::createMinimalMoore(const Automaton& automaton){
 		statesWithClasse.first.first = 1;
 		statesWithClasse.first.second = *st;
 		for(alpha = curr.alphabet.begin() ; alpha != curr.alphabet.end() ; ++alpha){ 
-			if(curr.isStateFinal(*st)){
-				statesWithClasse.second.push_back(2);
-			}else{
-				statesWithClasse.second.push_back(1);
+			for(tr = curr.transition.begin() ; tr != curr.transition.end() ; ++tr){
+				if(*alpha == tr->getAlpha() && *st == tr->getFrom()){
+					if(curr.isStateFinal(tr->getTo())){
+						statesWithClasse.second.push_back(1);
+					}else{
+						statesWithClasse.second.push_back(2);
+					}
+				}
 			}
 		}
+	
 
 		for(listSt = Congruence.begin() ; listSt != Congruence.end() ; ++listSt){
 			if(statesWithClasse.second == listSt->second){
@@ -746,27 +754,30 @@ Automaton fa::Automaton::createMinimalMoore(const Automaton& automaton){
 		Congruence.push_back(statesWithClasse);
 		statesWithClasse.second.clear();
 	}
+
 	listCongruence.push_back(Congruence);
 
 	while(!sameCongruence){
-		Congruence.clear();
 		numClasse = 1;
+		Congruence.clear();
 		newClasse = true;
 
 		for(st = curr.states.begin() ; st != curr.states.end() ; ++st){	
 			statesWithClasse.first.first = numClasse;
 			statesWithClasse.first.second = *st;	
 			for(alpha = curr.alphabet.begin() ; alpha != curr.alphabet.end() ; ++alpha){
-					
-				for(tr = automaton.transition.begin() ; tr != automaton.transition.end() ; ++tr){
-					for(cong = listCongruence.end()-- ; cong != listCongruence.end() ; ++cong){
-						for(listSt = std::next((*cong).begin(),*st) ; listSt != (*cong).end() ; ++listSt){//Maraboutage de haut niveau
-							statesWithClasse.second.push_back(listSt->first.first);
-							break;
+				for(tr = curr.transition.begin() ; tr != curr.transition.end() ; ++tr){
+					if(*alpha == tr->getAlpha() && *st == tr->getFrom()){
+						for(cong = --listCongruence.end() ; cong != listCongruence.end() ; ++cong){
+							for(listSt = std::next((*cong).begin(),tr->getTo()) ; listSt != (*cong).end() ; ++listSt){//Maraboutage de haut niveau
+								statesWithClasse.second.push_back(listSt->first.first);
+								break;
+							}
 						}
 					}
 				}
 			}
+			
 
 			for(listSt = Congruence.begin() ; listSt != Congruence.end() ; ++listSt){
 				if(statesWithClasse.second == listSt->second){
@@ -790,32 +801,34 @@ Automaton fa::Automaton::createMinimalMoore(const Automaton& automaton){
 			break;	
 		}
 	
-		sameCongruence = true;
-		for(cong = listCongruence.end()-- ; cong != listCongruence.end() ; ++cong){
+		for(cong = --listCongruence.end() ; cong != listCongruence.end() ; ++cong){
 			for(listSt = (*cong).begin() ; listSt != (*cong).end() ; ++listSt){
-				for(listSt2 = Congruence.begin() ; listSt2 != Congruence.end() ; ++listSt2){
-					if(listSt->first.first != listSt2->first.first){
-						sameCongruence = false;
-					}
-				}				
+				verifSameCong.push_back(listSt->first.first);
 			}
 		}
-	
-		listCongruence.push_back(Congruence);
-				
+		
+		for(listSt = Congruence.begin() ; listSt != Congruence.end() ; ++listSt){
+			verifSameCong2.push_back(listSt->first.first);
+		}
+
+		if(verifSameCong == verifSameCong2){
+			sameCongruence = true;
+		}
+		
+		listCongruence.push_back(Congruence);			
 	}
 
 	if(alreadyMinimal){
 		return automaton;
 	}
 
-	for(size_t i = 0 ; i < numClasse ; ++i){
+
+	for(size_t i = 1 ; i < numClasse ; ++i){
 		res.addState(i);
 	}
 
-	for(cong = listCongruence.end()-- ; cong != listCongruence.end() ; ++cong){
+	for(cong = --listCongruence.end() ; cong != listCongruence.end() ; ++cong){
 		for(listSt = (*cong).begin() ; listSt != (*cong).end() ; ++listSt){
-			std::cout << "test" << std::endl;
 			if(curr.isStateInitial(listSt->first.second)){
 				res.setStateInitial(listSt->first.first);
 			}
@@ -825,21 +838,22 @@ Automaton fa::Automaton::createMinimalMoore(const Automaton& automaton){
 		}
 	}
 
+	int stateCurr = 0;
 
-	for(cong = listCongruence.end()-- ; cong != listCongruence.end() ; ++cong){
+	for(cong = --listCongruence.end() ; cong != listCongruence.end() ; ++cong){
 		for(listSt = (*cong).begin() ; listSt != (*cong).end() ; ++listSt){
-			for(alpha = res.alphabet.begin() ; alpha != res.alphabet.end() ; ++alpha){
-				/*res.addTransition(listSt->first.first,*alpha,listSt->second)				
-
-				int test = std::distance(cong.second.begin(), cong.second.find(tr->getFrom()));
-				int from = std::distance(res.states.begin(), automaton.states.find(tr->getFrom()));
-				int to = std::distance(res.states.begin(), automaton.states.find(tr->getFrom()));
-				res.addTransition(*/
-			}						
+			if(stateCurr < listSt->first.first){
+				++stateCurr;
+				alpha = res.alphabet.begin();
+				states = listSt->second.begin();
+				while(alpha != res.alphabet.end()){
+					res.addTransition(stateCurr,*alpha,*states);	
+					++alpha;
+					++states;			
+				}	
+			}					
 		}
 	}
-
-	//Congruence = --listCongruence.end();
 
 	return res;
 }
