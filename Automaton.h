@@ -4,6 +4,7 @@
 #include <tuple>
 #include <list>
 #include <iomanip>
+#include <assert.h>
 
 namespace fa{
 
