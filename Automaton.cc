@@ -655,7 +655,7 @@ Automaton fa::Automaton::createMinimalMoore(const Automaton& automaton){
 	size_t numClasse = 1;
 	std::list<std::list<int>> listCurrStates;
 	std::list<int>::iterator states;
-
+    
 	assert(curr.isDeterministic() != false);
 	assert(curr.isComplete() != false);
 
@@ -832,6 +832,22 @@ void fa::Transition::setFrom(int st){
 
 void fa::Transition::setTo(int st){
 	to = st;	
+}
+
+Automaton fa::Automaton::createMinimalBrzozowski(const Automaton& automaton){
+    fa::Automaton curr = sortStates(automaton);
+	assert(curr.isDeterministic() != false);
+	assert(curr.isComplete() != false);
+    fa::Automaton res;
+    return res;
+}
+    
+Automaton fa::Automaton::createMinimalHopcroft(const Automaton& automaton){
+    fa::Automaton curr = sortStates(automaton);
+	assert(curr.isDeterministic() != false);
+	assert(curr.isComplete() != false);
+    fa::Automaton res;
+    return res;
 }
 
 Automaton fa::Automaton::createWithoutEpsilon(const Automaton& automaton){

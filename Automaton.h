@@ -27,14 +27,6 @@ namespace fa{
 
     class Automaton{
         public:
-			void print(const std::string s) const;
-			bool findFinalState(int state) const;
-			bool findInitialState(int state) const;
-			void createProductRec(const Automaton& lhs, const Automaton& rhs, int rhsState, int lhsState, Automaton& res, int fromState, std::list<std::list<int>> coupleList);
-			void createDeterministicRec(const Automaton& automaton, std::set<int> currStates, std::list<std::set<int>> stateList, Automaton& res, int stateFrom);
-			static Automaton sortStates(const Automaton& automaton);
-			Automaton createWithoutEpsilonRec(const Automaton& automaton, int from, int to);
-/************************************************************************/
 
             void addState(int state);
             void removeState(int state);
@@ -78,7 +70,13 @@ namespace fa{
             std::set<int> finalStates; // L'ensemble des états initiaux de l'automate
 			std::set<Transition> transition;        
 			std::set<char> alphabet;    
-			// Autres déclaration d'attributs (par exemple les transitions, pour lesquelles je vous conseille de créer une autre classe "Transition")...
+			void print(const std::string s) const;
+			bool findFinalState(int state) const;
+			bool findInitialState(int state) const;
+			void createProductRec(const Automaton& lhs, const Automaton& rhs, int rhsState, int lhsState, Automaton& res, int fromState, std::list<std::list<int>> coupleList);
+			void createDeterministicRec(const Automaton& automaton, std::set<int> currStates, std::list<std::set<int>> stateList, Automaton& res, int stateFrom);
+			static Automaton sortStates(const Automaton& automaton);
+			Automaton createWithoutEpsilonRec(const Automaton& automaton, int from, int to);
     };
 
     // A vous de coder cette classe en prenant exemple sur la classe Automaton
