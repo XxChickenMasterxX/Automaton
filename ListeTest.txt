@@ -23,82 +23,82 @@ OK	apres un ajout = 1
 OK	apres un ajout et une suppression = 0
 
 //		void setStateInitial(int state);
-	sans etat = error
+OK	sans etat = error
 OK	un etat = etat present ET initial
 OK	etat final = etat present ET final ET etat initial
 OK	etat deja initial = etat present ET etat initial
 
 //			bool isStateInitial(int state) const;
-	sans etat = false
-	avec un etat non initial et non final = false
-	avec un etat non initial et final = false
-	avec un etat initial et non final = true
-	avec un etat initial et final = true
+OK	sans etat = error
+OK	avec un etat non initial et non final = false
+OK	avec un etat non initial et final = false
+OK	avec un etat initial et non final = true
+OK	avec un etat initial et final = true
 
 //			void setStateFinal(int state);
-	sans etat = error
-	un etat = etat present ET etat final
-	etat initial = etat present ET final ET etat initial
-	etat deja final = etat present ET etat final
+OK	sans etat = error
+OK	un etat = etat present ET etat final
+OK	etat initial = etat present ET final ET etat initial
+OK	etat deja final = etat present ET etat final
 
 //			bool isStateFinal(int state) const;
-	sans etat = false
-	avec un etat non initial et non final = false
-	avec un etat non initial et final = true
-	avec un etat initial et non final = false
-	avec un etat initial et final = true
+OK	sans etat = false
+OK	avec un etat non initial et non final = false
+OK	avec un etat non initial et final = true
+OK	avec un etat initial et non final = false
+OK	avec un etat initial et final = true
 
 //			void addTransition(int from, char alpha, int to);
-	sans etats (etat invalide) = transition non presente
-	un etat transition sur lui meme = transition presente
-	deux etat transition de l'un a l'autre = transition presente
-	ajout transition avec caractere speciaux (char)1000 = transition non presente
-	etat final transition sur lui meme = transition presente
-	etat initial transition sur lui meme = transition presente
-	etat final trans etat quelconque = transition presente
-	etat initial trans etat quelconque = transition presente
-	etat final trans etat final = transition presente
-	etat initial trans etat initial = transition presente
-	etat final trans etat initial = transition presente
-	etat initial trans etat final = transition presente
-	etat quelconque trans etat initial = transition presente
-	etat quelconque trans etat final = transition presente
+OK	sans etats (etat invalide) = error
+OK	un etat transition sur lui meme = transition presente
+OK	deux etat transition de l'un a l'autre = transition presente
+OK	ajout transition avec caractere speciaux (char)1000 = transition non presente
+OK	etat final transition sur lui meme = transition presente
+OK	etat initial transition sur lui meme = transition presente
+OK	etat final trans etat quelconque = transition presente
+OK	etat initial trans etat quelconque = transition presente
+OK	etat final trans etat final = transition presente
+OK    etat initial trans etat initial = transition presente
+OK	etat final trans etat initial = transition presente
+OK	etat initial trans etat final = transition presente
+OK	etat quelconque trans etat initial = transition presente
+OK	etat quelconque trans etat final = transition presente
 
 //			bool hasTransition(int from, char alpha, int to) const;
-	sans etats = false
-	etat valide -> etat invalide = false
-	un etat transition sur lui meme = true
-	deux etat transition de l'un a l'autre = true
-	ajout transition avec caractere speciaux (char)1000 = false
+OK	sans etats = error
+OK	etat valide -> etat invalide = error
+OK	1 etat transition inexistante = false
+OK	un etat transition sur lui meme = true
+OK	deux etat transition de l'un a l'autre = true
+OK	ajout transition avec caractere speciaux (char)1000 = false
 
 //			void removeTransition(int from, char alpha, int to);
-	sans etat = transition non presente
-	suppression transition sur un etat = transition non presente
-	suppression transition entre 2 etat = transition non presente
-	supression d'une transition 1 etat inexistant = transition non presente
-	supression d'une transition valide avec char invalide = transition non presente
+OK	sans etat = error
+OK	suppression transition sur un etat = transition non presente
+OK	suppression transition entre 2 etat = transition non presente
+OK	supression d'une transition 1 etat inexistant = error
+OK	supression d'une transition valide avec char invalide = error
 
 //			std::size_t countTransitions() const;
-	sans etat = 0
-	1 etat sans transition = 0
-	1 etat 1 transition = 1
-	2 etats 1 transition entre les 2 = 1
-	2 etats 1 transition entre les 2,suppression transition = 0
-	1 etats 1 transition ,suppression 1 etat = 0
-	2 etats 1 transition entre les 2,suppression 1 etat = 0
-	2 etats 1 transition entre les 2,suppression 2 etats = 0
+OK	1 etat sans transition = 0
+OK	1 etat 1 transition = 1
+OK	2 etats 1 transition entre les 2 = 1
+OK	2 etats 1 transition entre les 2,suppression transition = 0
+OK	1 etats 1 transition ,suppression 1 etat = 0
+OK	2 etats 1 transition entre les 2,suppression 1 etat = 0
+Ok	2 etats 1 transition entre les 2,suppression 2 etats = 0
 
 //			std::size_t getAlphabetSize() const;
-	sans etat = 0
-	1 etat sans transition = 0
-	2 etats 1 transition entre les 2 = 1
-	2 etats 1 transition entre les 2,suppression transition = 1
-	2 etats 2 transition entre eux avec meme char = 1
-	2 etats 2 transition entre eux avec meme char, suppression d'une transition = 1
-	2 etats 2 transition entre eux avec meme char, suppression des transitions = 1
-	2 etats 2 transition entre eux char different = 2
-	2 etats 2 transition entre eux char different, suppression d'une transition = 2
-	2 etats 2 transition entre eux char different, suppression des transition = 2
+OK	sans etat = 0
+OK	1 etat sans transition = 0
+OK	2 etats 1 transition entre les 2 = 1
+OK	2 etats 1 transition entre les 2,suppression transition = 1
+OK	2 etats 2 transition entre eux avec meme char = 1
+OK	2 etats 2 transition entre eux avec meme char, suppression d'une transition = 1
+OK	2 etats 2 transition entre eux avec meme char, suppression des transitions = 1
+OK	2 etats 2 transition entre eux char different = 2
+OK	2 etats 2 transition entre eux char different, suppression d'une transition = 2
+Ok	2 etats 2 transition entre eux char different, suppression des transition = 2
 	 
 
 //			void dotPrint(std::ostream& os) const;
@@ -108,108 +108,108 @@ OK	etat deja initial = etat present ET etat initial
 	non teste
 	
 //			bool isDeterministic() const;
-	automat vide = false
-	1 etat quelconque sans transition = false
-	1 etat final = false
-	1 etat initial = true
+OK	automat vide = false
+OK	1 etat quelconque sans transition = false
+OK	1 etat final = false
+OK	1 etat initial = true
 	2 etat initial = false
 	
 
 //			bool isComplete() const;
-	automat vide = true
-	automat complet = true
-	automat incomplet = false
+OK	automat vide = true
+OK	automat complet = true
+OK	automat incomplet = false
 	
 //			void makeComplete();
-	automat vide = automat vide
-	automat incomplet = automat complet
-	automat complet = automat complet
+OK	automat vide = automat vide
+OK	automat incomplet = automat complet
+OK	automat complet = automat complet
 
 //			void makeComplement();
-	automat vide = automat vide
-	automat incomplet = meme automat
-	automat complet = automat complementaire
+OK	automat vide = automat vide
+Ok	automat incomplet = meme automat
+OK	automat complet = automat complementaire
 
 //			bool isLanguageEmpty() const;
-	automat vide = true
-	automat sans transition = true
-	automat avec transition = false
+OK	automat vide = true
+OK	automat sans transition = true
+OK	automat avec transition = false
 
 //			void removeNonAccessibleStates();
-	etat inexistant
-	1 etat quelconque = automat vide
-	1 etat init = 1 etat init
-	1 init + tansit lui meme = 1 etat init
-	1 final = vide
-	1 final + transit lui meme = vide
-	1 etat quelconque + 1 init = 1 init
-	1 etat final + 1 init = 1 init
-	1 etat final + 1 init + 1 quelconque = 1 init
-	1 etat quelconque + 1 init + transition entre eux = 1 init + 1 etat quelconque
-	1 etat final + 1 init + transition entre eux= 1 init + 1 etat final
-	1 etat init -> 1 quelconque -> 1 final transition entre chaque = 1 etat init -> 1 quelconque -> 1 final
+OK	etat inexistant
+OK	1 etat quelconque = automat vide
+OK	1 etat init = 1 etat init
+OK	1 init + tansit lui meme = 1 etat init
+OK	1 final = vide
+OK	1 final + transit lui meme = vide
+OK	1 etat quelconque + 1 init = 1 init
+OK	1 etat final + 1 init = 1 init
+OK	1 etat final + 1 init + 1 quelconque = 1 init
+OK	1 etat quelconque + 1 init + transition entre eux = 1 init + 1 etat quelconque
+OK	1 etat final + 1 init + transition entre eux= 1 init + 1 etat final
+OK	1 etat init -> 1 quelconque -> 1 final transition entre chaque = 1 etat init -> 1 quelconque -> 1 final
 	
 //			void removeNonCoAccessibleStates();
-	etat inexistant
-	1 etat quelconque = automat vide
-	1 init = automat vide
-	1 init + tansit lui meme = vide
-	1 final = 1 final
-	1 final + transit lui meme = 1 final
-	1 init + 1 final = 1 final
-	1 init + 1 quelconque + 1 final = 1 final
-	1 init + 1 final + transition entre eux = 1 init + 1 final 
-	1 init + 1 quelconque + 1 final + transition entre chaque = 1 init + 1 quelconque + 1 final 
+OK	etat inexistant
+OK	1 etat quelconque = automat vide
+OK	1 init = automat vide
+OK	1 init + transit lui meme = vide
+OK	1 final = 1 final
+OK	1 final + transit lui meme = 1 final
+OK	1 init + 1 final = 1 final
+OK	1 init + 1 quelconque + 1 final = 1 final
+OK	1 init + 1 final + transition entre eux = 1 init + 1 final 
+OK	1 init + 1 quelconque + 1 final + transition entre chaque = 1 init + 1 quelconque + 1 final 
 	
 
 // 			static Automaton createProduct(const Automaton& lhs, const Automaton& rhs);
-	automat quelconque * automat vide = automat vide
-	language 1 * language 2 = l1 U l2
+OK	automat quelconque * automat vide = automat vide
+OK	language 1 * language 2 = l1 U l2
 !!!	completer
 	
 //			bool hasEmptyIntersectionWith(const Automaton& other) const;
-	transition inexistante = false
-	transition sur lui meme = true
-	transition d'un etat existant a un etat inexistant = false
-	transition d'un etat inexistant a un etat existant = false
-	transition entre 2 etat existant =true
+OK	Intersection inexistante = false
+OK	Intersection sur lui meme = true
+OK	Intersection d'un automat existant a un automat inexistant = error
+OK	Intersection d'un automat inexistant a un automat existant = false
+OK	Intersection entre 2 automat existant =true
 
 //			std::set<int> readString(const std::string& word) const;
-	automat vide = set vide
-	automat reconaissant L ; mot du language L = set des etats par ou passe le mot
+OK	automat vide = set vide
+OK	automat reconaissant L ; mot du language L = set des etats par ou passe le mot
 
 
 //			bool match(const std::string& word) const;
-	Language vide ; mot vide= true
-	Language vide ; mot non vide= false
-	Language non vide ; mot vide= false
-	Language L ; mot du language L = true
+OK	Language vide ; mot vide= true
+OK	Language vide ; mot non vide= false
+OK	Language non vide ; mot vide= false
+OK	Language L ; mot du language L = true
 
 static Automaton createDeterministic(const Automaton& automaton);
-	automat vide = automat non determinist
-	automat determinist = automat determinist
-	automat non determinist = automat determinist
+OK	automat vide = automat non determinist
+OK	automat determinist = automat determinist
+Ok	automat non determinist = automat determinist
 
 //			bool isIncludedIn(const Automaton& other) const;
-	language vide U language vide = true
-	language vide U language non vide = true
-	language non vide U language vide = false
-	language L['a'] U language L['a','b'] = true
-	language L['a','b'] U language L['a'] = false
+OK	language vide U language vide = true
+OK	language vide U language non vide = true
+OK	language non vide U language vide = false
+OK	language L['a'] U language L['a','b'] = true
+OK	language L['a','b'] U language L['a'] = false
 
 
 //			static Automaton createMinimalMoore(const Automaton& automaton);
-	automat vide = automat vide
-	1 etat init = 1 etat init
-	tester assertion
+OK	automat vide = automat vide
+OK	1 etat init = 1 etat init
+
 	
 //			static Automaton createMinimalBrzozowski(const Automaton& automaton);
-	idem createMinimalMoore
+OK	idem createMinimalMoore
 	
 //			static Automaton createMinimalHopcroft(const Automaton& automaton);
-	idem createMinimalMoore
+OK	idem createMinimalMoore
 	
 //			static Automaton createWithoutEpsilon(const Automaton& automaton);
-	automat vide = aplhabet contient pas le code ascii 0
-	1 etat init -> 1 etat quelconque -> 1 etat final = aplhabet contient pas le code ascii 0
+OK	automat vide = aplhabet contient pas le code ascii 0
+OK	1 etat init -> 1 etat quelconque -> 1 etat final = aplhabet contient pas le code ascii 0
 
