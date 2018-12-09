@@ -317,14 +317,14 @@ TEST(AutomatonTest, addTransitionBetweenTwoState) {
 	fa.addState(1);
 	fa.addState(2);
 	fa.addTransition(1,'a',2);
-  	EXPECT_EQ(fa.countStates(), 1u);
+  	EXPECT_EQ(fa.countStates(), 2u);
   	EXPECT_EQ(fa.countTransitions(), 1u);
 }
 
 TEST(AutomatonTest, addTransitionWithOneStateAndNoPrintableAlpha) {
   	fa::Automaton fa;
 	fa.addState(1);
-	fa.addTransition(1,(char)1000,1);
+	fa.addTransition(1,'\a',1);
   	EXPECT_EQ(fa.countStates(), 1u);
   	EXPECT_EQ(fa.countTransitions(), 0u);
 }
@@ -333,7 +333,7 @@ TEST(AutomatonTest, addTransitionWithTwoStateAndNoPrintableAlpha) {
  	fa::Automaton fa;
   	fa.addState(1);
   	fa.addState(2);
-	fa.addTransition(1,(char)1000,2);
+	fa.addTransition(1,'\a',2);
   	EXPECT_EQ(fa.countStates(), 2u);
   	EXPECT_EQ(fa.countTransitions(), 0u);
 }
@@ -362,7 +362,7 @@ TEST(AutomatonTest, addTransitionBetweenFinalAndLambdaState) {
 	fa.addState(2);
 	fa.setStateFinal(1);
 	fa.addTransition(1,'a',2);
-  	EXPECT_EQ(fa.countStates(), 1u);
+  	EXPECT_EQ(fa.countStates(), 2u);
   	EXPECT_EQ(fa.countTransitions(), 1u);
 }
 
@@ -372,7 +372,7 @@ TEST(AutomatonTest, addTransitionBetweenLambdaAndFinalState) {
 	fa.addState(2);
 	fa.setStateFinal(1);
 	fa.addTransition(2,'a',1);
-  	EXPECT_EQ(fa.countStates(), 1u);
+  	EXPECT_EQ(fa.countStates(), 2u);
   	EXPECT_EQ(fa.countTransitions(), 1u);
 }
 
@@ -382,7 +382,7 @@ TEST(AutomatonTest, addTransitionBetweenInitalAndLambdaState) {
 	fa.addState(2);
 	fa.setStateInitial(1);
 	fa.addTransition(1,'a',2);
-  	EXPECT_EQ(fa.countStates(), 1u);
+  	EXPECT_EQ(fa.countStates(), 2u);
   	EXPECT_EQ(fa.countTransitions(), 1u);
 }
 
@@ -392,7 +392,7 @@ TEST(AutomatonTest, addTransitionBetweenLanbdaAndInitalState) {
 	fa.addState(2);
 	fa.setStateInitial(1);
 	fa.addTransition(2,'a',1);
-  	EXPECT_EQ(fa.countStates(), 1u);
+  	EXPECT_EQ(fa.countStates(), 2u);
   	EXPECT_EQ(fa.countTransitions(), 1u);
 }
 
@@ -403,7 +403,7 @@ TEST(AutomatonTest, addTransitionBetweenTwoFinalState) {
 	fa.setStateFinal(1);
 	fa.setStateFinal(2);
 	fa.addTransition(2,'a',1);
-  	EXPECT_EQ(fa.countStates(), 1u);
+  	EXPECT_EQ(fa.countStates(), 2u);
   	EXPECT_EQ(fa.countTransitions(), 1u);
 }
 
@@ -414,7 +414,7 @@ TEST(AutomatonTest, addTransitionBetweenTwoInitalState) {
 	fa.setStateInitial(1);
 	fa.setStateInitial(2);
 	fa.addTransition(2,'a',1);
-  	EXPECT_EQ(fa.countStates(), 1u);
+  	EXPECT_EQ(fa.countStates(), 2u);
   	EXPECT_EQ(fa.countTransitions(), 1u);
 }
 
@@ -425,7 +425,7 @@ TEST(AutomatonTest, addTransitionBetweenFinalAndInitalState) {
 	fa.setStateInitial(1);
 	fa.setStateFinal(2);
 	fa.addTransition(2,'a',1);
-  	EXPECT_EQ(fa.countStates(), 1u);
+  	EXPECT_EQ(fa.countStates(), 2u);
   	EXPECT_EQ(fa.countTransitions(), 1u);
 }
 
@@ -436,7 +436,7 @@ TEST(AutomatonTest, addTransitionBetweenInitialAndFinalState) {
 	fa.setStateInitial(1);
 	fa.setStateFinal(2);
 	fa.addTransition(2,'a',1);
-  	EXPECT_EQ(fa.countStates(), 1u);
+  	EXPECT_EQ(fa.countStates(), 2u);
   	EXPECT_EQ(fa.countTransitions(), 1u);
 }
 
@@ -490,8 +490,8 @@ TEST(AutomatonTest, hasTransitionWithTwoState) {
 TEST(AutomatonTest, hasTransitionWithOneStateAndNoPrintableAlpha) {
   	fa::Automaton fa;
 	fa.addState(1);
-	fa.addTransition(1,(char)1000,1);
-	EXPECT_FALSE(fa.hasTransition(1,(char)1000,1));
+	fa.addTransition(1,'\a',1);
+	EXPECT_FALSE(fa.hasTransition(1,'\a',1));
   	EXPECT_EQ(fa.countStates(), 1u);
   	EXPECT_EQ(fa.countTransitions(), 0u);
 }
@@ -500,8 +500,8 @@ TEST(AutomatonTest, hasTransitionWithTwoStateAndNoPrintableAlpha) {
  	fa::Automaton fa;
   	fa.addState(1);
   	fa.addState(2);
-	fa.addTransition(1,(char)1000,2);
-	EXPECT_FALSE(fa.hasTransition(1,(char)1000,2));
+	fa.addTransition(1,'\a',2);
+	EXPECT_FALSE(fa.hasTransition(1,'\a',2));
   	EXPECT_EQ(fa.countStates(), 2u);
   	EXPECT_EQ(fa.countTransitions(), 0u);
 }
@@ -572,7 +572,7 @@ TEST(AutomatonTest, removeTransitionBetweenTwoState) {
 	fa.addState(1);
 	fa.addState(2);
 	fa.addTransition(1,'a',2);
-	fa.removeTransition(1,'a',1);
+	fa.removeTransition(1,'a',2);
   	EXPECT_EQ(fa.countStates(), 2u);
   	EXPECT_EQ(fa.countTransitions(), 0u);
 }
@@ -586,7 +586,7 @@ TEST(AutomatonTest, removeTransitionBetweenExistAndNotState) {
 TEST(AutomatonTest, removeTransitionWithOneStateAndNoPrintableAlpha) {
   	fa::Automaton fa;
 	fa.addState(1);
-	EXPECT_DEATH(fa.removeTransition(1,(char)1000,1),"");
+	EXPECT_DEATH(fa.removeTransition(1,'\a',1),"");
 }
 
 //--------------------------------------------------------
@@ -824,7 +824,7 @@ TEST(AutomatonTest, NoDeterministicWithEpsilonTransition) {
 	fa.addState(2);
 	fa.setStateInitial(1);
 	fa.setStateFinal(2);
-	fa.addTransition(1,(char)0,1);
+	fa.addTransition(1,'\a',1);
   	EXPECT_FALSE(fa.isDeterministic());
 }
 
@@ -1571,7 +1571,7 @@ TEST(AutomatonTest, emptyIntersectionVoid) {
 	EXPECT_FALSE(fa.hasEmptyIntersectionWith(fa));
 }
 
-TEST(AutomatonTest, emptyIntersectionWithSame) {
+TEST(AutomatonTest, emptyIntersectionWithOther) {
   	fa::Automaton fa; // automate a
 	fa.addState(1);
 	fa.addState(2);
@@ -1606,7 +1606,7 @@ TEST(AutomatonTest, emptyIntersectionWithItSelf) {
 	EXPECT_FALSE(fa.hasEmptyIntersectionWith(fa));
 }
 
-TEST(AutomatonTest, emptyIntersectionFalse) {
+TEST(AutomatonTest, emptyIntersectionWithSame) {
   	fa::Automaton fa; // automate a
 	fa.addState(1);
 	fa.addState(2);
@@ -1666,7 +1666,7 @@ TEST(AutomatonTest, readStringSimple) {
 TEST(AutomatonTest, matchLangageEmptyWordEmpty){
     fa::Automaton fa; 
 	
-	EXPECT_TRUE(fa.match(NULL));
+	EXPECT_TRUE(fa.match(""));
 }
 
 TEST(AutomatonTest, matchLangageEmptyWordNotEmpty){
@@ -1685,7 +1685,7 @@ TEST(AutomatonTest, matchLangageNotEmptyWordEmpty){
 	
 	fa.addTransition(1,'a',2);
 	
-	EXPECT_TRUE(fa.match(NULL));
+	EXPECT_TRUE(fa.match(""));
 }
 
 TEST(AutomatonTest, matchLangageNotEmptyWordNotEmpty){
