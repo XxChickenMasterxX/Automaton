@@ -14,7 +14,7 @@ void fa::Automaton::print(std::string s) const{
 }
 
 void fa::Automaton::addState(int state){
-	//assert(hasState(state) != false);
+	assert(hasState(state) != true);
     states.insert(state);
 }
 
@@ -92,20 +92,23 @@ fa::Transition::Transition(int from, char alpha, int to){
 void fa::Automaton::addTransition(int from, char alpha, int to){
 	assert(hasState(from) != false);
 	assert(hasState(to) != false);
-	//assert(isprint(alpha) != false);
-		
+	assert(isprint(alpha) || alpha == '\0');
 	Transition t(from, alpha, to);
 	transition.insert(t);
 	alphabet.insert(alpha);
 }
 	
 bool fa::Automaton::hasTransition(int from, char alpha, int to) const{
+	assert(hasState(from) != false);
+	assert(hasState(to) != false);
+	assert(isprint(alpha) != false && alpha != '\0');
 	return transition.find(Transition(from, alpha, to)) != transition.end();
 }
 
 void fa::Automaton::removeTransition(int from, char alpha, int to){
 	assert(hasState(from) != false);
 	assert(hasState(to) != false);
+	assert(isprint(alpha) != false && alpha != '\0');
 	
 	transition.erase(Transition(from, alpha, to));
 }
@@ -524,7 +527,7 @@ std::set<int> fa::Automaton::readString(const std::string& word) const{
 	
 	if(!isDeterministic()){
 		return rambo;
-	}
+	}		
  
  	int st = *initialStates.begin();
  	rambo.insert(st);
@@ -550,6 +553,9 @@ std::set<int> fa::Automaton::readString(const std::string& word) const{
 }
 
 bool fa::Automaton::match(const std::string& word) const{
+	if(word == ""){
+		return true;
+	}
 	return !readString(word).empty();
 }
 

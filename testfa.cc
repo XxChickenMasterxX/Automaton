@@ -104,7 +104,7 @@ TEST(AutomatonTest, countManyState) {
 	fa.addState(1);
 	fa.addState(2);
 	fa.addState(3);
-	fa.addState(1);
+	EXPECT_DEATH(fa.addState(1),"");
 	EXPECT_EQ(fa.countStates(), 3u);
 	fa.removeState(1);
 	EXPECT_EQ(fa.countStates(), 2u);
@@ -324,7 +324,7 @@ TEST(AutomatonTest, addTransitionBetweenTwoState) {
 TEST(AutomatonTest, addTransitionWithOneStateAndNoPrintableAlpha) {
   	fa::Automaton fa;
 	fa.addState(1);
-	fa.addTransition(1,'\a',1);
+	EXPECT_DEATH(fa.addTransition(1,'\a',1),"");
   	EXPECT_EQ(fa.countStates(), 1u);
   	EXPECT_EQ(fa.countTransitions(), 0u);
 }
@@ -333,7 +333,7 @@ TEST(AutomatonTest, addTransitionWithTwoStateAndNoPrintableAlpha) {
  	fa::Automaton fa;
   	fa.addState(1);
   	fa.addState(2);
-	fa.addTransition(1,'\a',2);
+	EXPECT_DEATH(fa.addTransition(1,'\a',2),"");
   	EXPECT_EQ(fa.countStates(), 2u);
   	EXPECT_EQ(fa.countTransitions(), 0u);
 }
@@ -490,8 +490,7 @@ TEST(AutomatonTest, hasTransitionWithTwoState) {
 TEST(AutomatonTest, hasTransitionWithOneStateAndNoPrintableAlpha) {
   	fa::Automaton fa;
 	fa.addState(1);
-	fa.addTransition(1,'\a',1);
-	EXPECT_FALSE(fa.hasTransition(1,'\a',1));
+	EXPECT_DEATH(fa.addTransition(1,'\a',1),"");
   	EXPECT_EQ(fa.countStates(), 1u);
   	EXPECT_EQ(fa.countTransitions(), 0u);
 }
@@ -500,8 +499,7 @@ TEST(AutomatonTest, hasTransitionWithTwoStateAndNoPrintableAlpha) {
  	fa::Automaton fa;
   	fa.addState(1);
   	fa.addState(2);
-	fa.addTransition(1,'\a',2);
-	EXPECT_FALSE(fa.hasTransition(1,'\a',2));
+	EXPECT_DEATH(fa.addTransition(1,'\a',2),"");
   	EXPECT_EQ(fa.countStates(), 2u);
   	EXPECT_EQ(fa.countTransitions(), 0u);
 }
@@ -515,7 +513,7 @@ TEST(AutomatonTest, hasTransitionWithRemovedStateFrom) {
   	EXPECT_EQ(fa.countStates(), 2u);
   	EXPECT_EQ(fa.countTransitions(), 1u);
   	fa.removeState(1);
-  	EXPECT_FALSE(fa.hasTransition(1,'a',2));
+  	EXPECT_DEATH(fa.hasTransition(1,'a',2),"");
   	EXPECT_EQ(fa.countStates(), 1u);
   	EXPECT_EQ(fa.countTransitions(), 0u);
 }
@@ -529,7 +527,7 @@ TEST(AutomatonTest, hasTransitionWithRemovedStateTo) {
   	EXPECT_EQ(fa.countStates(), 2u);
   	EXPECT_EQ(fa.countTransitions(), 1u);
   	fa.removeState(2);
-  	EXPECT_FALSE(fa.hasTransition(1,'a',2));
+  	EXPECT_DEATH(fa.hasTransition(1,'a',2),"");
   	EXPECT_EQ(fa.countStates(), 1u);
   	EXPECT_EQ(fa.countTransitions(), 0u);
 }
@@ -544,7 +542,7 @@ TEST(AutomatonTest, hasTransitionWithRemovedStateALL) {
   	EXPECT_EQ(fa.countTransitions(), 1u);
   	fa.removeState(1);
   	fa.removeState(2);
-  	EXPECT_FALSE(fa.hasTransition(1,'a',2));
+  	EXPECT_DEATH(fa.hasTransition(1,'a',2),"");
   	EXPECT_EQ(fa.countStates(), 0u);
   	EXPECT_EQ(fa.countTransitions(), 0u);
 }
@@ -817,16 +815,17 @@ TEST(AutomatonTest, NoDeterministicTwoInitialState) {
   	EXPECT_FALSE(fa.isDeterministic());
 }
 
-
+/*
 TEST(AutomatonTest, NoDeterministicWithEpsilonTransition) {
   	fa::Automaton fa;
 	fa.addState(1);
 	fa.addState(2);
 	fa.setStateInitial(1);
 	fa.setStateFinal(2);
-	fa.addTransition(1,'\a',1);
+	fa.addTransition(1,'\0',2);
   	EXPECT_FALSE(fa.isDeterministic());
 }
+*/
 
 TEST(AutomatonTest, NoDeterministicNoInitState) {
   	fa::Automaton fa;
@@ -1568,7 +1567,7 @@ TEST(AutomatonTest, CreateProduct) {
 TEST(AutomatonTest, emptyIntersectionVoid) {
   	fa::Automaton fa; // automate a
 	
-	EXPECT_FALSE(fa.hasEmptyIntersectionWith(fa));
+	EXPECT_TRUE(fa.hasEmptyIntersectionWith(fa));
 }
 
 TEST(AutomatonTest, emptyIntersectionWithOther) {
