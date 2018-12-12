@@ -1,6 +1,6 @@
 #include <iostream> // Inclure ceci pour utiliser des "std::string"
 #include <sstream>
-#include <fstream>
+//#include <fstream>
 #include <set> // Inclure ceci pour utiliser des ensembles (voir la déclaration d'attribut "std::set<int> states;" ci-dessous par exemple)
 #include <tuple>
 #include <list>

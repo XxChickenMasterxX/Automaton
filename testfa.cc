@@ -2017,6 +2017,25 @@ TEST(AutomatonTest, createWithoutEpsilonVoid) {
   	EXPECT_EQ(fwe.getAlphabetSize(), 0u);
 }
 
+TEST(AutomatonTest, createWithoutEpsilonVoid) {
+  	fa::Automaton fa;
+  	
+  	fa.addState(1);
+	fa.addState(2);
+  	
+  	fa.setStateInitial(1);
+	fa.setStateFinal(2);
+	
+	fa.addTransition(1,'\0',2);
+  	
+  	fa::Automaton fwe;
+  	fwe = fwe.createWithoutEpsilon(fa);
+  	EXPECT_TRUE(fwe.match(""));
+  	EXPECT_EQ(fwe.countStates(), 0u);
+  	EXPECT_EQ(fwe.countTransitions(), 0u);
+  	EXPECT_EQ(fwe.getAlphabetSize(), 1u);
+}
+
 TEST(AutomatonTest, createWithoutEpsilon) {
   	fa::Automaton fa;
 	fa.addState(1);
@@ -2031,7 +2050,7 @@ TEST(AutomatonTest, createWithoutEpsilon) {
 	fa.addTransition(3,'c',3);
   	
   	fa::Automaton fwe;
-  	//fwe = fwe.createWithoutEpsilon(fa); // boucle a l'infini
+  	fwe = fwe.createWithoutEpsilon(fa);
   	
   	EXPECT_EQ(fwe.countStates(), 3u);
   	EXPECT_EQ(fwe.countTransitions(), 6u);
