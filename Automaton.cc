@@ -101,14 +101,14 @@ void fa::Automaton::addTransition(int from, char alpha, int to){
 bool fa::Automaton::hasTransition(int from, char alpha, int to) const{
 	assert(hasState(from) != false);
 	assert(hasState(to) != false);
-	assert(isprint(alpha) != false && alpha != '\0');
+	assert(isprint(alpha) || alpha == '\0');
 	return transition.find(Transition(from, alpha, to)) != transition.end();
 }
 
 void fa::Automaton::removeTransition(int from, char alpha, int to){
 	assert(hasState(from) != false);
 	assert(hasState(to) != false);
-	assert(isprint(alpha) != false && alpha != '\0');
+	assert(isprint(alpha) || alpha == '\0');
 	
 	transition.erase(Transition(from, alpha, to));
 }
@@ -762,7 +762,8 @@ Automaton fa::Automaton::createMinimalMoore(const Automaton& automaton){
 			sameCongruence = true;
 		}
 		
-		listCongruence.push_back(Congruence);			
+		listCongruence.push_back(Congruence);
+		std::cout << "test" << std::endl;			
 	}
 
 	if(alreadyMinimal){
@@ -863,7 +864,7 @@ Automaton fa::Automaton::createWithoutEpsilon(const Automaton& automaton){
 	Automaton res = automaton;
 	
 	for(tr = res.transition.begin() ; tr != res.transition.end() ; ++tr){
-		std::cout << tr->getFrom() << std::endl;
+		
 		if(tr->getAlpha() == '\0'){
 			res.removeTransition(tr->getFrom(),tr->getAlpha(),tr->getTo());
 			res = res.createWithoutEpsilonRec(res, tr->getFrom(), tr->getTo());
