@@ -761,9 +761,10 @@ Automaton fa::Automaton::createMinimalMoore(const Automaton& automaton){
 		if(verifSameCong == verifSameCong2){
 			sameCongruence = true;
 		}
-		
+		verifSameCong.clear();
+		verifSameCong2.clear();
 		listCongruence.push_back(Congruence);
-		std::cout << "test" << std::endl;			
+		
 	}
 
 	if(alreadyMinimal){
