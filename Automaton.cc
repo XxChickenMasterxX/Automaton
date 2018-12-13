@@ -106,9 +106,7 @@ bool fa::Automaton::hasTransition(int from, char alpha, int to) const{
 }
 
 void fa::Automaton::removeTransition(int from, char alpha, int to){
-	assert(hasState(from) != false);
-	assert(hasState(to) != false);
-	assert(isprint(alpha) || alpha == '\0');
+	assert(hasTransition(from,alpha,to));
 	
 	transition.erase(Transition(from, alpha, to));
 }
@@ -675,9 +673,9 @@ Automaton fa::Automaton::createMinimalMoore(const Automaton& automaton){
 			for(tr = curr.transition.begin() ; tr != curr.transition.end() ; ++tr){
 				if(*alpha == tr->getAlpha() && *st == tr->getFrom()){
 					if(curr.isStateFinal(tr->getTo())){
-						statesWithClasse.second.push_back(1);
-					}else{
 						statesWithClasse.second.push_back(2);
+					}else{
+						statesWithClasse.second.push_back(1);
 					}
 				}
 			}
@@ -703,11 +701,11 @@ Automaton fa::Automaton::createMinimalMoore(const Automaton& automaton){
 	}
 
 	listCongruence.push_back(Congruence);
-
 	while(!sameCongruence){
 		numClasse = 1;
 		Congruence.clear();
 		newClasse = true;
+		int x = 1;
 
 		for(st = curr.states.begin() ; st != curr.states.end() ; ++st){	
 			statesWithClasse.first.first = numClasse;
@@ -733,15 +731,18 @@ Automaton fa::Automaton::createMinimalMoore(const Automaton& automaton){
 					break;
 				}
 			}
-			
+
 			if(newClasse){
 				statesWithClasse.first.first = numClasse;
 				++numClasse;
+				
 			}
-			
+			newClasse = true;
+			++x;
 			Congruence.push_back(statesWithClasse);
 			statesWithClasse.second.clear();	
 		}
+		
 
 		if(numClasse == res.states.size()){
 			alreadyMinimal = true;
@@ -764,7 +765,7 @@ Automaton fa::Automaton::createMinimalMoore(const Automaton& automaton){
 		verifSameCong.clear();
 		verifSameCong2.clear();
 		listCongruence.push_back(Congruence);
-		
+
 	}
 
 	if(alreadyMinimal){
