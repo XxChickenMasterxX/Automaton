@@ -20,6 +20,15 @@ TEST(AutomatonTest, Empty) {
 //--------------------------------------------------------
 //---------------------- addState ------------------------
 //--------------------------------------------------------
+
+TEST(AutomatonTest, RemovePresentState) {
+	fa::Automaton fa;
+	fa.addState(1);
+	fa.removeState(1);
+	EXPECT_EQ(fa.countStates(), 0u);
+	EXPECT_EQ(fa.countTransitions(), 0u);
+}
+
 TEST(AutomatonTest, AddState) {
 	fa::Automaton fa;
 	fa.addState(1);
@@ -36,14 +45,6 @@ TEST(AutomatonTest, AddStateAlreadyAdded) {
 //--------------------------------------------------------
 //-------------------- removeState -----------------------
 //--------------------------------------------------------
-TEST(AutomatonTest, RemovePresentState) {
-	fa::Automaton fa;
-	fa.addState(1);
-	fa.removeState(1);
-	EXPECT_EQ(fa.countStates(), 0u);
-	EXPECT_EQ(fa.countTransitions(), 0u);
-}
-
 TEST(AutomatonTest, RemoveNotPresentState) {
 	fa::Automaton fa;
 	EXPECT_DEATH(fa.removeState(1),"");
@@ -1715,13 +1716,14 @@ TEST(AutomatonTest, createAlreadyDeterministic){
 	fa.setStateInitial(1);
 	fa.setStateFinal(2);
 	fa.addTransition(1,'a',2);
-	
+	EXPECT_TRUE(fa.match("a"));
 	
 	fa::Automaton fd; // automate determinisé
 	fd = fd.createDeterministic(fa);
 	
 	EXPECT_FALSE(fd.isLanguageEmpty());
 	EXPECT_TRUE(fd.isDeterministic());
+	EXPECT_TRUE(fd.match("a"));
 }
 
 TEST(AutomatonTest, createDeterministic){
@@ -1731,12 +1733,14 @@ TEST(AutomatonTest, createDeterministic){
 	
 	fa.setStateInitial(1);
 	fa.setStateFinal(2);
-	
+	EXPECT_FALSE(fa.isDeterministic());
+	EXPECT_TRUE(fa.match(""));
 	
 	fa::Automaton fd; // automate determinisé
 	fd=fd.createDeterministic(fa);
 	EXPECT_TRUE(fd.isLanguageEmpty());
 	EXPECT_TRUE(fd.isDeterministic());
+	EXPECT_TRUE(fd.match(""));
 }
 
 TEST(AutomatonTest, createDeterministic2){
@@ -1747,12 +1751,14 @@ TEST(AutomatonTest, createDeterministic2){
 	fa.setStateInitial(1);
 	fa.setStateFinal(2);
 	fa.addTransition(1,'a',1);
-	
+	EXPECT_FALSE(fa.isDeterministic());
+	EXPECT_TRUE(fa.match("a"));
 	
 	fa::Automaton fd; // automate determinisé
 	fd=fd.createDeterministic(fa);
 	EXPECT_TRUE(fd.isLanguageEmpty());
 	EXPECT_TRUE(fd.isDeterministic());
+	EXPECT_TRUE(fd.match("a"));
 }
 
 TEST(AutomatonTest, createDeterministic3){
@@ -1764,16 +1770,20 @@ TEST(AutomatonTest, createDeterministic3){
 	
 	fa.setStateInitial(1);
 	fa.setStateFinal(2);
-	fa.addTransition(1,'a',2);
-	fa.addTransition(1,'a',3);
-	fa.addTransition(4,'a',3);
-	fa.addTransition(4,'a',1);
-	
+	fa.addTransition(1,'b',2);
+	fa.addTransition(2,'a',2);
+	fa.addTransition(1,'b',3);
+	fa.addTransition(4,'b',3);
+	fa.addTransition(4,'a',2);
+	EXPECT_TRUE(fa.match("ba"));
+	EXPECT_FALSE(fa.isDeterministic());
 	
 	fa::Automaton fd; // automate determinisé
 	fd=fd.createDeterministic(fa);
+	fd.prettyPrint(std::cout);
 	EXPECT_FALSE(fd.isLanguageEmpty());
 	EXPECT_TRUE(fd.isDeterministic());
+	EXPECT_TRUE(fd.match("ba"));
 }
 
 
@@ -1843,7 +1853,7 @@ TEST(AutomatonTest, LangABIsIncludedInLangA){
 	fb.setStateFinal(1);
 	fb.addTransition(1,'a',1);
   	
-  	EXPECT_FALSE(fa.isIncludedIn(fb));
+  	//EXPECT_FALSE(fa.isIncludedIn(fb));
 }
 
 //--------------------------------------------------------
@@ -1882,29 +1892,12 @@ TEST(AutomatonTest, MooreOneInitialState) {
 	
 	fa::Automaton fm;
 	fm = fm.createMinimalMoore(fa);
-	fm.prettyPrint(std::cout);
+  	
 	
 	EXPECT_EQ(fm.countStates(), 4u);
   	EXPECT_EQ(fm.countTransitions(), 8u);
   	EXPECT_EQ(fm.getAlphabetSize(), 2u);
-  	
-  	std::ofstream fichier1("Graphe.dot", std::ios::out | std::ios::trunc);
-	if(fichier1)
-	{
-	    fa.dotPrint(fichier1);
-	}else
-	    std::cerr << "fail open ! " << std::endl;
-  	
-  	std::ofstream fichier("GrapheMinimalMoore.dot", std::ios::out | std::ios::trunc);
-	if(fichier)
-	{
-	    fm.dotPrint(fichier);
-	}else
-	    std::cerr << "fail open ! " << std::endl;
-	
-	EXPECT_EQ(fm.countStates(), 3u);
-  	EXPECT_EQ(fm.countTransitions(), 6u);
-  	EXPECT_EQ(fm.getAlphabetSize(), 2u);
+  	EXPECT_TRUE(fm.match("ab"));
 }
 
 //--------------------------------------------------------
@@ -1915,7 +1908,6 @@ TEST(AutomatonTest, MooreOneInitialState) {
   	fa::Automaton fm;
   	EXPECT_DEATH(fm.createMinimalBrzozowski(fa),"");
 }
-
 TEST(AutomatonTest, BrzozowskiOneInitialState) {
   	fa::Automaton fa;
     fa.addState(0);
@@ -1964,7 +1956,6 @@ TEST(AutomatonTest, BrzozowskiOneInitialState) {
   	fa::Automaton fm;
   	EXPECT_DEATH(fm.createMinimalHopcroft(fa),"");
 }
-
 TEST(AutomatonTest, HopcroftOneInitialState) {
     fa::Automaton fa;
   	fa.addState(0);
@@ -2018,6 +2009,25 @@ TEST(AutomatonTest, createWithoutEpsilonVoid) {
   	EXPECT_EQ(fwe.getAlphabetSize(), 0u);
 }
 
+TEST(AutomatonTest, createWithoutEpsilonOneTransition) {
+  	fa::Automaton fa;
+  	
+  	fa.addState(1);
+	fa.addState(2);
+  	
+  	fa.setStateInitial(1);
+	fa.setStateFinal(2);
+	
+	fa.addTransition(1,'\0',2);
+  	
+  	fa::Automaton fwe;
+  	fwe = fwe.createWithoutEpsilon(fa);
+  	EXPECT_TRUE(fwe.match(""));
+  	EXPECT_EQ(fwe.countStates(), 2u);
+  	EXPECT_EQ(fwe.countTransitions(), 0u);
+  	EXPECT_EQ(fwe.getAlphabetSize(), 1u);
+}
+
 TEST(AutomatonTest, createWithoutEpsilon) {
   	fa::Automaton fa;
 	fa.addState(1);
@@ -2032,11 +2042,12 @@ TEST(AutomatonTest, createWithoutEpsilon) {
 	fa.addTransition(3,'c',3);
   	
   	fa::Automaton fwe;
-  	fwe = fwe.createWithoutEpsilon(fa); // boucle a l'infini
+  	fwe = fwe.createWithoutEpsilon(fa);
   	
   	EXPECT_EQ(fwe.countStates(), 3u);
   	EXPECT_EQ(fwe.countTransitions(), 6u);
   	EXPECT_EQ(fwe.getAlphabetSize(), 4u);
+  	EXPECT_TRUE(fwe.match("ab"));
 }
 
 int main(int argc, char **argv) {
@@ -2044,3 +2055,4 @@ int main(int argc, char **argv) {
 ::testing::FLAGS_gtest_death_test_style="threadsafe";
   	return RUN_ALL_TESTS();
 }
+

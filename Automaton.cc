@@ -109,6 +109,7 @@ void fa::Automaton::removeTransition(int from, char alpha, int to){
 	assert(hasTransition(from,alpha,to));
 	
 	transition.erase(Transition(from, alpha, to));
+	
 }
 
 std::size_t fa::Automaton::countTransitions() const{
@@ -536,6 +537,7 @@ std::set<int> fa::Automaton::readString(const std::string& word) const{
 				hasTrans = true;
 				st = tr->getTo();
 				rambo.insert(st);
+				//std::cout << "test" << std::endl;
 				break;
 			}
 		}
@@ -644,7 +646,6 @@ Automaton fa::Automaton::createMinimalMoore(const Automaton& automaton){
 	std::pair<std::pair<int,int>,std::list<int>> statesWithClasse;
 	std::list<std::pair<std::pair<int,int>,std::list<int>>> Congruence;
 	std::list<std::pair<std::pair<int,int>,std::list<int>>>::iterator listSt;
-	std::list<std::pair<std::pair<int,int>,std::list<int>>>::iterator listSt2;
 	std::list<std::list<std::pair<std::pair<int,int>,std::list<int>>>> listCongruence;
 	std::list<std::list<std::pair<std::pair<int,int>,std::list<int>>>>::iterator cong;
 	std::set<Transition>::iterator tr;
@@ -652,12 +653,10 @@ Automaton fa::Automaton::createMinimalMoore(const Automaton& automaton){
 	std::set<int>::iterator st;
 	std::list<int> verifSameCong;
 	std::list<int> verifSameCong2;	
-	std::list<int>::iterator listState;	
 	bool sameCongruence = false;
 	bool alreadyMinimal = false;
 	bool newClasse;
 	size_t numClasse = 1;
-	std::list<std::list<int>> listCurrStates;
 	std::list<int>::iterator states;
     
 	assert(curr.isDeterministic() != false);
@@ -870,7 +869,9 @@ Automaton fa::Automaton::createWithoutEpsilon(const Automaton& automaton){
 		if(tr->getAlpha() == '\0'){
 			res.removeTransition(tr->getFrom(),tr->getAlpha(),tr->getTo());
 			res = res.createWithoutEpsilonRec(res, tr->getFrom(), tr->getTo());
-			tr = res.transition.begin();
+			if(res.countTransitions() > 0){ 
+				tr = res.transition.begin();
+			}
 		}	
 	}
 	 
