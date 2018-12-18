@@ -522,7 +522,6 @@ bool fa::Automaton::hasEmptyIntersectionWith(const Automaton& other) const{
 std::set<int> fa::Automaton::readString(const std::string& word) const{
 	std::set<int> rambo;
 	std::set<Transition>::iterator tr;
-	bool hasTrans = false;
 	
 	if(!isDeterministic()){
 		return rambo;
@@ -531,13 +530,14 @@ std::set<int> fa::Automaton::readString(const std::string& word) const{
  	int st = *initialStates.begin();
  	rambo.insert(st);
  
-	for(size_t i = 0 ; i < word.size() ; ++i){		
+	for(size_t i = 0 ; i < word.size() ; ++i){
+		bool hasTrans = false;		
 		for(tr = transition.begin() ; tr != transition.end() ; ++tr){
 			if(tr->getFrom() == st && tr->getAlpha() == word[i]){
 				hasTrans = true;
 				st = tr->getTo();
 				rambo.insert(st);
-				//std::cout << "test" << std::endl;
+				std::cout << "test" << std::endl;
 				break;
 			}
 		}
@@ -550,7 +550,7 @@ std::set<int> fa::Automaton::readString(const std::string& word) const{
 		rambo.clear();		
 	}
 	return rambo;
-}
+}	
 
 bool fa::Automaton::match(const std::string& word) const{
 	if(word == ""){
