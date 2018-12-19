@@ -101,7 +101,7 @@ void fa::Automaton::addTransition(int from, char alpha, int to){
 bool fa::Automaton::hasTransition(int from, char alpha, int to) const{
 	assert(hasState(from) != false);
 	assert(hasState(to) != false);
-	assert(isprint(alpha) || alpha == '\0');
+	//assert(isprint(alpha) || alpha == '\0');
 	return transition.find(Transition(from, alpha, to)) != transition.end();
 }
 
@@ -205,15 +205,17 @@ void fa::Automaton::dotPrint(std::ostream& os) const{
 
 
 bool fa::Automaton::isDeterministic() const{
-	if(initialStates.size() != 1 || finalStates.empty()){
+	if(initialStates.size() != 1){
 		return false;
+	}
+	if(isStateFinal(*initialStates.begin())){
+		return true;
 	}
 	//test si il n'y a pas d'ambiguité lors d'une transition
 	std::set<Transition>::iterator tr;
 	std::set<int>::iterator st;
 	std::set<char>::iterator let;
 	bool det = false;	
-	
 
 	for(st = states.begin() ; st != states.end() ; ++st){	
 		for(let = alphabet.begin() ; let != alphabet.end() ; ++let){
@@ -228,8 +230,9 @@ bool fa::Automaton::isDeterministic() const{
 			det = false;
 		}
 	}
+	std::list<std::pair<int,char>> listValues;
 	return true;
-	//return findFinalState(*initialStates.begin());
+	//return findFinalState(*initialStates.begin(), listValues);
 }
 
 bool fa::Automaton::isComplete() const{
@@ -240,7 +243,6 @@ bool fa::Automaton::isComplete() const{
 
 	for(st = states.begin() ; st != states.end() ; ++st){
 		for(let = alphabet.begin() ; let != alphabet.end() ; ++let){
-			//Optimiser transition avec un find	
 			for(tr = transition.begin() ; tr != transition.end() ; ++tr){
 				if(*let == tr->getAlpha() && *st == tr->getFrom()){
 					comp = true;
@@ -313,21 +315,36 @@ bool fa::Automaton::isLanguageEmpty() const{
 	std::set<int>::iterator st;
 	
 	for(st = initialStates.begin() ; st != initialStates.end() ; ++st){
-		return !(findFinalState(*st));
+		std::list<std::pair<int,char>> listValues;
+		return !(findFinalState(*st,listValues));
 	}
 
 	return true;
 }
 
-bool fa::Automaton::findFinalState(int state) const{
+bool fa::Automaton::findFinalState(int state,std::list<std::pair<int,char>> listValues) const{
 	std::set<Transition>::iterator tr;
+	std::list<std::pair<int,char>>::iterator verif;
+	bool unique = true;
 	for(tr = transition.begin() ; tr != transition.end() ; ++tr){
 		if(tr->getFrom() == state){
 			if(isStateFinal(tr->getTo())){
 				return true;
 			}else{
 				if(tr->getFrom() != tr->getTo()){
-					return findFinalState(tr->getTo());
+					for(verif = listValues.begin() ; verif != listValues.end() ; ++verif){
+						if(verif->first == tr->getFrom() && verif->second == tr->getAlpha()){
+							unique = false;
+						}
+					}
+					if(unique){
+						std::pair<int,char> newVal;
+						newVal.first = tr->getFrom();
+						newVal.second = tr->getAlpha();
+						listValues.push_back(newVal);				
+						return findFinalState(tr->getTo(),listValues);
+					}
+					unique = false;
 				}
 			}
 		}
@@ -355,11 +372,12 @@ void fa::Automaton::removeNonAccessibleStates(){ // cas
 void fa::Automaton::removeNonCoAccessibleStates(){
 	std::set<int>::iterator st;
 	std::set<int> test;
+	std::list<std::pair<int,char>> listValues;
 	for(st = states.begin() ; st != states.end() ; ++st){
 		if(isStateFinal(*st)){
 			continue;
 		}
-		if(!findFinalState(*st)){
+		if(!findFinalState(*st, listValues)){
 			test.insert(*st);
 		}
 	}
@@ -520,43 +538,42 @@ bool fa::Automaton::hasEmptyIntersectionWith(const Automaton& other) const{
 
 
 std::set<int> fa::Automaton::readString(const std::string& word) const{
-	std::set<int> rambo;
-	std::set<Transition>::iterator tr;
-	
-	if(!isDeterministic()){
-		return rambo;
-	}		
+	std::set<int> path;
+	std::set<Transition>::iterator tr;	
  
  	int st = *initialStates.begin();
- 	rambo.insert(st);
- 
-	for(size_t i = 0 ; i < word.size() ; ++i){
-		bool hasTrans = false;		
-		for(tr = transition.begin() ; tr != transition.end() ; ++tr){
-			if(tr->getFrom() == st && tr->getAlpha() == word[i]){
-				hasTrans = true;
-				st = tr->getTo();
-				rambo.insert(st);
-				std::cout << "test" << std::endl;
-				break;
+ 	path = readStringRec(word, st, 0, path);
+	if(!path.empty()){
+		path.insert(st);
+	}
+	return path;
+}
+
+std::set<int> fa::Automaton::readStringRec(const std::string& word, int st, size_t pos, std::set<int> path) const{
+	std::set<Transition>::iterator tr;
+	for(tr = transition.begin() ; tr != transition.end() ; ++tr){
+		if(tr->getFrom() == st && tr->getAlpha() == word[pos]){
+			if(pos == word.size() - 1 && isStateFinal(tr->getTo())){
+				path.insert(tr->getTo());
+				return path;	
 			}
-		}
-		if(!hasTrans){
-			rambo.clear();
-			return rambo;
-		}
+			path = readStringRec(word, tr->getTo(), ++pos, path);
+			if(!path.empty()){
+				path.insert(tr->getFrom());
+				return path;
+			}
+		}		
 	}
-	if(!isStateFinal(st)){
-		rambo.clear();		
-	}
-	return rambo;
+	return path;
+		
+
 }	
 
 bool fa::Automaton::match(const std::string& word) const{
 	if(word == ""){
 		return true;
 	}
-	return !readString(word).empty();
+	return !(readString(word).empty());
 }
 
 fa::Automaton fa::Automaton::createDeterministic(const Automaton& automaton){
