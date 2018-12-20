@@ -315,8 +315,8 @@ bool fa::Automaton::isLanguageEmpty() const{
 	std::set<int>::iterator st;
 	
 	for(st = initialStates.begin() ; st != initialStates.end() ; ++st){
-		std::list<std::pair<int,char>> listValues;
-		if(findFinalState(*st,listValues)){
+		std::list<Transition> listTrans;
+		if(findFinalState(*st,listTrans)){
 			return false;
 		}			
 	}
@@ -324,29 +324,27 @@ bool fa::Automaton::isLanguageEmpty() const{
 	return true;
 }
 
-bool fa::Automaton::findFinalState(int state,std::list<std::pair<int,char>> listValues) const{
+bool fa::Automaton::findFinalState(int state,std::list<Transition> listTrans) const{
 	std::set<Transition>::iterator tr;
-	std::list<std::pair<int,char>>::iterator verif;
-	bool unique = true;
+	std::list<Transition>::iterator verif;
 	for(tr = transition.begin() ; tr != transition.end() ; ++tr){
+	bool unique = true;
 		if(tr->getFrom() == state){
 			if(isStateFinal(tr->getTo())){
 				return true;
 			}else{
 				if(tr->getFrom() != tr->getTo()){
-					for(verif = listValues.begin() ; verif != listValues.end() ; ++verif){
-						if(verif->first == tr->getFrom() && verif->second == tr->getAlpha()){
+					for(verif = listTrans.begin() ; verif != listTrans.end() ; ++verif){
+						if(*verif == *tr){
 							unique = false;
 						}
 					}
 					if(unique){
-						std::pair<int,char> newVal;
-						newVal.first = tr->getFrom();
-						newVal.second = tr->getAlpha();
-						listValues.push_back(newVal);				
-						return findFinalState(tr->getTo(),listValues);
+						listTrans.push_back(*tr);				
+						if(findFinalState(tr->getTo(),listTrans)){
+							return true;
+						}
 					}
-					unique = false;
 				}
 			}
 		}
@@ -354,7 +352,7 @@ bool fa::Automaton::findFinalState(int state,std::list<std::pair<int,char>> list
 	return false;
 }
 
-void fa::Automaton::removeNonAccessibleStates(){ // cas 
+void fa::Automaton::removeNonAccessibleStates(){
 	std::set<int>::iterator st;
 	std::set<int> test;
 	std::list<std::pair<int,char>> listValues;
@@ -375,12 +373,12 @@ void fa::Automaton::removeNonAccessibleStates(){ // cas
 void fa::Automaton::removeNonCoAccessibleStates(){
 	std::set<int>::iterator st;
 	std::set<int> test;
-	std::list<std::pair<int,char>> listValues;
+	std::list<Transition> listTrans;
 	for(st = states.begin() ; st != states.end() ; ++st){
 		if(isStateFinal(*st)){
 			continue;
 		}
-		if(!findFinalState(*st, listValues)){
+		if(!findFinalState(*st, listTrans)){
 			test.insert(*st);
 		}
 	}
@@ -431,14 +429,14 @@ Automaton fa::Automaton::createProduct(const Automaton& lhs, const Automaton& rh
 	std::set<char>::iterator lt2;
 	std::set<int> lhsStates;
 	std::set<int> rhsStates;
-	std::list<std::list<int>> coupleList;
+	std::list<std::list<int>> coupleList;//Liste des couples pour les doublons
 	std::list<int> couple;
 	std::list<std::list<int>>::iterator cp;
 	bool newCp = true;
 
 	for(lt = lhs.alphabet.begin() ; lt != lhs.alphabet.end() ; ++lt){
 		for(lt2 = rhs.alphabet.begin() ; lt2 != rhs.alphabet.end() ; ++lt2){
-			if(*lt == *lt2){
+			if(*lt == *lt2){//On ne cherche que les caractères présents dans les 2 alphabets
 				res.alphabet.insert(*lt);
 				break;
 			}	
@@ -450,10 +448,12 @@ Automaton fa::Automaton::createProduct(const Automaton& lhs, const Automaton& rh
 	
 	for(lhsSt = lhs.initialStates.begin() ; lhsSt != lhs.initialStates.end() ; ++lhsSt){
 		for(rhsSt = rhs.initialStates.begin() ; rhsSt != rhs.initialStates.end() ; ++rhsSt){
+			//On ajoute les couples d'états initiaux des 2 automates
 			couple.push_back(*lhsSt);
 			couple.push_back(*rhsSt);
 			for(cp = coupleList.begin() ; cp != coupleList.end() ; ++cp){
 				if(*cp == couple){
+					//On vérifie qu'il n'y a pas de doublon
 					newCp = false;
 					break;
 				}
@@ -498,7 +498,7 @@ void fa::Automaton::createProductRec(const Automaton& lhs, const Automaton& rhs,
 				newRhsStates.insert(tr->getTo());
 			}			
 		}
-		if(newRhsStates.size() == 0){
+		if(newRhsStates.size() == 0){//Vérification si il y a bien une transition avec le caractère
 			continue;
 		}
 		
@@ -507,7 +507,7 @@ void fa::Automaton::createProductRec(const Automaton& lhs, const Automaton& rhs,
 				newLhsStates.insert(tr->getTo());
 			}			
 		}
-		if(newLhsStates.size() == 0){
+		if(newLhsStates.size() == 0){//De même
 			continue;
 		}
 

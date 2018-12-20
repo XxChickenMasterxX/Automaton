@@ -15,6 +15,9 @@ namespace fa{
 			bool operator<(const Transition& t) const{
 				return std::tie(from, alpha, to) < std::tie(t.from, t.alpha, t.to);
 			}
+			bool operator==(const Transition& t) const{
+				return std::tie(from, alpha, to) == std::tie(t.from, t.alpha, t.to);
+			}
 			int getFrom() const;
 			char getAlpha() const;
 			int getTo() const;
@@ -72,7 +75,7 @@ namespace fa{
 			std::set<Transition> transition;        
 			std::set<char> alphabet;    
 			void print(const std::string s) const;
-			bool findFinalState(int state, std::list<std::pair<int,char>>) const;
+			bool findFinalState(int state, std::list<Transition>) const;
 			bool findInitialState(int state, std::list<std::pair<int,char>>) const;
 			void createProductRec(const Automaton& lhs, const Automaton& rhs, int rhsState, int lhsState, Automaton& res, int fromState, std::list<std::list<int>> coupleList);
 			void createDeterministicRec(const Automaton& automaton, std::set<int> currStates, std::list<std::set<int>> stateList, Automaton& res, int stateFrom);
