@@ -316,7 +316,9 @@ bool fa::Automaton::isLanguageEmpty() const{
 	
 	for(st = initialStates.begin() ; st != initialStates.end() ; ++st){
 		std::list<std::pair<int,char>> listValues;
-		return !(findFinalState(*st,listValues));
+		if(findFinalState(*st,listValues)){
+			return false;
+		}			
 	}
 
 	return true;
@@ -355,11 +357,12 @@ bool fa::Automaton::findFinalState(int state,std::list<std::pair<int,char>> list
 void fa::Automaton::removeNonAccessibleStates(){ // cas 
 	std::set<int>::iterator st;
 	std::set<int> test;
+	std::list<std::pair<int,char>> listValues;
 	for(st = states.begin() ; st != states.end() ; ++st){
 		if(isStateInitial(*st)){
 			continue;
 		}
-		if(!findInitialState(*st)){
+		if(!findInitialState(*st, listValues)){
 			test.insert(*st);
 		}
 		
@@ -386,15 +389,29 @@ void fa::Automaton::removeNonCoAccessibleStates(){
 	}	
 }
 
-bool fa::Automaton::findInitialState(int state) const{
+bool fa::Automaton::findInitialState(int state, std::list<std::pair<int,char>> listValues) const{
 	std::set<Transition>::iterator tr;
+	std::list<std::pair<int,char>>::iterator verif;
+	bool unique = true;
 	for(tr = transition.begin() ; tr != transition.end() ; ++tr){
 		if(tr->getTo() == state){
 			if(isStateInitial(tr->getFrom())){
 				return true;
 			}else{
 				if(tr->getFrom() != tr->getTo()){
-					return findInitialState(tr->getFrom());
+					for(verif = listValues.begin() ; verif != listValues.end() ; ++verif){
+						if(verif->first == tr->getFrom() && verif->second == tr->getAlpha()){
+							unique = false;
+						}
+					}
+					if(unique){
+						std::pair<int,char> newVal;
+						newVal.first = tr->getFrom();
+						newVal.second = tr->getAlpha();
+						listValues.push_back(newVal);				
+						return findInitialState(tr->getFrom(),listValues);
+					}
+					unique = false;
 				}
 			}
 		}
