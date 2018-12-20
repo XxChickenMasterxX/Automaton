@@ -816,18 +816,6 @@ TEST(AutomatonTest, NoDeterministicTwoInitialState) {
   	EXPECT_FALSE(fa.isDeterministic());
 }
 
-/*
-TEST(AutomatonTest, NoDeterministicWithEpsilonTransition) {
-  	fa::Automaton fa;
-	fa.addState(1);
-	fa.addState(2);
-	fa.setStateInitial(1);
-	fa.setStateFinal(2);
-	fa.addTransition(1,'\0',2);
-  	EXPECT_FALSE(fa.isDeterministic());
-}
-*/
-
 TEST(AutomatonTest, NoDeterministicNoInitState) {
   	fa::Automaton fa;
 	fa.addState(1);
@@ -1749,6 +1737,24 @@ TEST(AutomatonTest, createDeterministic3){
 	EXPECT_FALSE(fd.isLanguageEmpty());
 	EXPECT_TRUE(fd.isDeterministic());
 	EXPECT_TRUE(fd.match("ba"));
+}
+
+
+TEST(AutomatonTest, DeterministicWithAfterCompletion) {
+	fa::Automaton fa;
+  	fa.addState(1);
+	fa.addState(2);
+	fa.addState(3);
+	fa.setStateInitial(1);
+	fa.setStateFinal(3);
+	fa.addTransition(1,'a',2);
+	fa.addTransition(2,'a',3);
+	fa.addTransition(2,'a',1); 
+	fa.makeComplete();
+	
+	fa::Automaton fd; // automate determinisé
+	fd=fd.createDeterministic(fa);
+  	EXPECT_TRUE(fd.isDeterministic());
 }
 
 
