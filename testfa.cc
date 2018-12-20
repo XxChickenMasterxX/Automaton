@@ -804,7 +804,7 @@ TEST(AutomatonTest, NoDeterministicInitialStateNoTransition) {
   	fa::Automaton fa;
 	fa.addState(2);
 	fa.setStateInitial(2);
-  	EXPECT_FALSE(fa.isDeterministic());
+  	EXPECT_TRUE(fa.isDeterministic());
 }
 
 TEST(AutomatonTest, NoDeterministicTwoInitialState) {
@@ -845,7 +845,7 @@ TEST(AutomatonTest, DeterministicNoFinalStateNoTransition) {
 	fa.addState(1);
 	fa.setStateInitial(1);
 	fa.addState(2);
-  	EXPECT_FALSE(fa.isDeterministic());
+  	EXPECT_TRUE(fa.isDeterministic());
 }
 
 TEST(AutomatonTest, NoDeterministicNoFinalState) {
@@ -857,7 +857,7 @@ TEST(AutomatonTest, NoDeterministicNoFinalState) {
 	fa.addTransition(1,'b',2);
 	fa.addTransition(2,'a',2);
 	fa.addTransition(2,'b',1);
-  	EXPECT_FALSE(fa.isDeterministic());
+  	EXPECT_TRUE(fa.isDeterministic());
 }
 
 TEST(AutomatonTest, NoDeterministicTwoTransitionFromOneStateSameAlpha) {
@@ -994,7 +994,7 @@ TEST(AutomatonTest, makeComplementWithNoComplete) {
 	fa.setStateFinal(2);
 	fa.addTransition(1,'a',1);
 	fa.addTransition(1,'b',1);
-	EXPECT_FALSE(fa.isDeterministic());
+	EXPECT_TRUE(fa.isDeterministic());
   	EXPECT_DEATH(fa.makeComplement(),"");
 }
 
@@ -1726,41 +1726,6 @@ TEST(AutomatonTest, createAlreadyDeterministic){
 	EXPECT_TRUE(fd.match("a"));
 }
 
-TEST(AutomatonTest, createDeterministic){
-    fa::Automaton fa; // automate a determiniser
-	fa.addState(1);
-	fa.addState(2);
-	
-	fa.setStateInitial(1);
-	fa.setStateFinal(2);
-	EXPECT_FALSE(fa.isDeterministic());
-	EXPECT_TRUE(fa.match(""));
-	
-	fa::Automaton fd; // automate determinisé
-	fd=fd.createDeterministic(fa);
-	EXPECT_TRUE(fd.isLanguageEmpty());
-	//EXPECT_TRUE(fd.isDeterministic());
-	EXPECT_TRUE(fd.match(""));
-}
-
-TEST(AutomatonTest, createDeterministic2){
-    fa::Automaton fa; // automate a determiniser
-	fa.addState(1);
-	fa.addState(2);
-	
-	fa.setStateInitial(1);
-	fa.setStateFinal(2);
-	fa.addTransition(1,'a',1);
-	EXPECT_FALSE(fa.isDeterministic());
-	EXPECT_TRUE(fa.match("a"));
-	
-	fa::Automaton fd; // automate determinisé
-	fd=fd.createDeterministic(fa);
-	EXPECT_TRUE(fd.isLanguageEmpty());
-	EXPECT_TRUE(fd.isDeterministic());
-	EXPECT_TRUE(fd.match("a"));
-}
-
 TEST(AutomatonTest, createDeterministic3){
     fa::Automaton fa; // automate a determiniser
 	fa.addState(1);
@@ -1852,6 +1817,27 @@ TEST(AutomatonTest, LangABIsIncludedInLangA){
 	fb.setStateInitial(1);
 	fb.setStateFinal(1);
 	fb.addTransition(1,'a',1);
+  	
+  	EXPECT_FALSE(fa.isIncludedIn(fb));
+}
+
+TEST(AutomatonTest, LangABIsIncludedInLangAtest2){
+    fa::Automaton fa;
+	fa.addState(1);
+	fa.setStateInitial(1);
+	fa.setStateFinal(1);
+	fa.addTransition(1,'a',1);
+	fa.addTransition(1,'b',1);
+	
+	fa::Automaton fb;
+	fb.addState(1);
+	fb.addState(2);
+	fb.setStateInitial(1);
+	fb.setStateFinal(1);
+	fb.addTransition(1,'a',1);
+	fb.addTransition(1,'b',2);
+	fb.addTransition(2,'a',2);
+	fb.addTransition(2,'b',2);
   	
   	EXPECT_FALSE(fa.isIncludedIn(fb));
 }
