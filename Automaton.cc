@@ -589,7 +589,12 @@ std::set<int> fa::Automaton::readStringRec(const std::string& word, int st, size
 
 bool fa::Automaton::match(const std::string& word) const{
 	if(word == ""){
-		return true;
+		std::set<int>::iterator st;
+		for(st = initialStates.begin() ; st != initialStates.end() ; ++st){
+			if(isStateFinal(*st)){
+				return true;	
+			}		
+		}
 	}
 	return !(readString(word).empty());
 }

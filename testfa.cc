@@ -1632,10 +1632,20 @@ TEST(AutomatonTest, readStringSimple) {
 //--------------------------------------------------------
 //------------------------ match -------------------------
 //--------------------------------------------------------
+
+TEST(AutomatonTest, matchLangageEmptyWord){
+    fa::Automaton fa;
+    fa.addState(0);
+    fa.setStateInitial(0);
+    fa.setStateFinal(0); 
+	
+	EXPECT_TRUE(fa.match(""));
+}
+
 TEST(AutomatonTest, matchLangageEmptyWordEmpty){
     fa::Automaton fa; 
 	
-	EXPECT_TRUE(fa.match(""));
+	EXPECT_FALSE(fa.match(""));
 }
 
 TEST(AutomatonTest, matchLangageEmptyWordNotEmpty){
@@ -1654,7 +1664,7 @@ TEST(AutomatonTest, matchLangageNotEmptyWordEmpty){
 	
 	fa.addTransition(1,'a',2);
 	
-	EXPECT_TRUE(fa.match(""));
+	EXPECT_FALSE(fa.match(""));
 }
 
 TEST(AutomatonTest, matchLangageNotEmptyWordNotEmpty){
@@ -2014,7 +2024,7 @@ TEST(AutomatonTest, createWithoutEpsilonOneTransition) {
   	
   	fa::Automaton fwe;
   	fwe = fwe.createWithoutEpsilon(fa);
-  	EXPECT_TRUE(fwe.match(""));
+  	EXPECT_FALSE(fwe.match(""));
   	EXPECT_EQ(fwe.countStates(), 2u);
   	EXPECT_EQ(fwe.countTransitions(), 0u);
   	EXPECT_EQ(fwe.getAlphabetSize(), 1u);
