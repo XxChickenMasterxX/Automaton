@@ -355,12 +355,12 @@ bool fa::Automaton::findFinalState(int state,std::list<Transition> listTrans) co
 void fa::Automaton::removeNonAccessibleStates(){
 	std::set<int>::iterator st;
 	std::set<int> test;
-	std::list<std::pair<int,char>> listValues;
+	std::list<Transition> listTrans;
 	for(st = states.begin() ; st != states.end() ; ++st){
 		if(isStateInitial(*st)){
 			continue;
 		}
-		if(!findInitialState(*st, listValues)){
+		if(!findInitialState(*st, listTrans)){
 			test.insert(*st);
 		}
 		
@@ -387,29 +387,27 @@ void fa::Automaton::removeNonCoAccessibleStates(){
 	}	
 }
 
-bool fa::Automaton::findInitialState(int state, std::list<std::pair<int,char>> listValues) const{
+bool fa::Automaton::findInitialState(int state, std::list<Transition> listTrans) const{
 	std::set<Transition>::iterator tr;
-	std::list<std::pair<int,char>>::iterator verif;
-	bool unique = true;
+	std::list<Transition>::iterator verif;
 	for(tr = transition.begin() ; tr != transition.end() ; ++tr){
+		bool unique = true;		
 		if(tr->getTo() == state){
 			if(isStateInitial(tr->getFrom())){
 				return true;
 			}else{
 				if(tr->getFrom() != tr->getTo()){
-					for(verif = listValues.begin() ; verif != listValues.end() ; ++verif){
-						if(verif->first == tr->getFrom() && verif->second == tr->getAlpha()){
+					for(verif = listTrans.begin() ; verif != listTrans.end() ; ++verif){
+						if(*verif == *tr){
 							unique = false;
 						}
 					}
 					if(unique){
-						std::pair<int,char> newVal;
-						newVal.first = tr->getFrom();
-						newVal.second = tr->getAlpha();
-						listValues.push_back(newVal);				
-						return findInitialState(tr->getFrom(),listValues);
+						listTrans.push_back(*tr);				
+						if(findInitialState(tr->getFrom(),listTrans)){
+							return true;
+						}
 					}
-					unique = false;
 				}
 			}
 		}
@@ -476,7 +474,7 @@ Automaton fa::Automaton::createProduct(const Automaton& lhs, const Automaton& rh
 	return res;
 }
 
-void fa::Automaton::createProductRec(const Automaton& lhs, const Automaton& rhs, int rhsState, int lhsState, Automaton& res, int fromState, std::list<std::list<int>> coupleList){
+void fa::Automaton::createProductRec(const Automaton& lhs, const Automaton& rhs, int rhsState, int lhsState, Automaton& res, int fromState, std::list<std::list<int>>& coupleList){
 
 	std::set<char>::iterator alpha;
 	std::set<int>::iterator lhsSt;
@@ -513,9 +511,11 @@ void fa::Automaton::createProductRec(const Automaton& lhs, const Automaton& rhs,
 
 		for(lhsSt = newLhsStates.begin() ; lhsSt != newLhsStates.end() ; ++lhsSt){
 			for(rhsSt = newRhsStates.begin() ; rhsSt != newRhsStates.end() ; ++rhsSt){
+				//Création des nouveaux couples
 				couple.push_back(*lhsSt);
 				couple.push_back(*rhsSt);
 				for(cp = coupleList.begin() ; cp != coupleList.end() ; ++cp){
+				//On vérifie que ce soit un nouveau couple
 					if(*cp == couple){
 						newCp = false;
 						break;
@@ -524,6 +524,7 @@ void fa::Automaton::createProductRec(const Automaton& lhs, const Automaton& rhs,
 				}
 
 				if(!newCp){
+					//Si il a déjà été crée on ajoute juste une transition
 					res.addTransition(fromState, *alpha, compteur);	
 				}
 				if(newCp){
@@ -632,6 +633,7 @@ void fa::Automaton::createDeterministicRec(const Automaton& automaton, std::set<
 		for(st = currStates.begin() ; st != currStates.end() ; ++st){
 			for(tr = automaton.transition.begin() ; tr != automaton.transition.end() ; ++tr){
 				if(tr->getFrom() == *st && tr->getAlpha() == *alpha){
+					//On ajoute tout les états qui valident la condition
 					newStates.insert(tr->getTo());
 					if(automaton.isStateFinal(tr->getTo())){
 						isFinal = true;
@@ -643,6 +645,7 @@ void fa::Automaton::createDeterministicRec(const Automaton& automaton, std::set<
 			continue;
 		}
 		for(listSt = stateList.begin() ; listSt != stateList.end() ; ++listSt){
+			//On vérifie que le ou les états n'ont pas déjà été trouvés
 			if(*listSt == newStates){
 				isListNew = false;
 				break;
@@ -675,10 +678,10 @@ bool fa::Automaton::isIncludedIn(const Automaton& other) const{
 }
 
 Automaton fa::Automaton::createMinimalMoore(const Automaton& automaton){
-	fa::Automaton curr = sortStates(automaton);
+	fa::Automaton curr = sortStates(automaton);//Fonction pour numéroter les états de manière propre
 	fa::Automaton res;
-	std::pair<std::pair<int,int>,std::list<int>> statesWithClasse;
-	std::list<std::pair<std::pair<int,int>,std::list<int>>> Congruence;
+	std::pair<std::pair<int,int>,std::list<int>> statesWithClasse;//Structure qui correspond à une paire qui dans l'élément de gauche aura une paire qui est constitué de la classe de l'état et de l'état lui-même et dans l'élément de droite une liste des différentes classes où vont pointer les transitions de l'état
+	std::list<std::pair<std::pair<int,int>,std::list<int>>> Congruence;//Liste de tout les états de la structure précédente, ce qui correspond à une congruence
 	std::list<std::pair<std::pair<int,int>,std::list<int>>>::iterator listSt;
 	std::list<std::list<std::pair<std::pair<int,int>,std::list<int>>>> listCongruence;
 	std::list<std::list<std::pair<std::pair<int,int>,std::list<int>>>>::iterator cong;
@@ -705,6 +708,7 @@ Automaton fa::Automaton::createMinimalMoore(const Automaton& automaton){
 		for(alpha = curr.alphabet.begin() ; alpha != curr.alphabet.end() ; ++alpha){ 
 			for(tr = curr.transition.begin() ; tr != curr.transition.end() ; ++tr){
 				if(*alpha == tr->getAlpha() && *st == tr->getFrom()){
+					//Comme c'est la première itération on ajoute 1 ou 2 et pas la classe de l'état où pointe la transition
 					if(curr.isStateFinal(tr->getTo())){
 						statesWithClasse.second.push_back(2);
 					}else{
@@ -717,6 +721,7 @@ Automaton fa::Automaton::createMinimalMoore(const Automaton& automaton){
 
 		for(listSt = Congruence.begin() ; listSt != Congruence.end() ; ++listSt){
 			if(statesWithClasse.second == listSt->second){
+				//On compare les listes pour savoir si c'est une nouvelle classe
 				statesWithClasse.first.first = listSt->first.first;
 				newClasse = false;
 				break;
@@ -728,7 +733,6 @@ Automaton fa::Automaton::createMinimalMoore(const Automaton& automaton){
 			++numClasse;
 		}
 			
-
 		Congruence.push_back(statesWithClasse);
 		statesWithClasse.second.clear();
 	}
@@ -747,7 +751,7 @@ Automaton fa::Automaton::createMinimalMoore(const Automaton& automaton){
 				for(tr = curr.transition.begin() ; tr != curr.transition.end() ; ++tr){
 					if(*alpha == tr->getAlpha() && *st == tr->getFrom()){
 						for(cong = --listCongruence.end() ; cong != listCongruence.end() ; ++cong){
-							for(listSt = std::next((*cong).begin(),tr->getTo()) ; listSt != (*cong).end() ; ++listSt){//Maraboutage de haut niveau
+							for(listSt = std::next((*cong).begin(),tr->getTo()) ; listSt != (*cong).end() ; ++listSt){
 								statesWithClasse.second.push_back(listSt->first.first);
 								break;
 							}
@@ -756,9 +760,9 @@ Automaton fa::Automaton::createMinimalMoore(const Automaton& automaton){
 				}
 			}
 			
-
 			for(listSt = Congruence.begin() ; listSt != Congruence.end() ; ++listSt){
 				if(statesWithClasse.second == listSt->second){
+					//On détermine les classes de la nouvelle congruence
 					statesWithClasse.first.first = listSt->first.first;
 					newClasse = false;
 					break;

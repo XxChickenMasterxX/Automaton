@@ -76,8 +76,8 @@ namespace fa{
 			std::set<char> alphabet;    
 			void print(const std::string s) const;
 			bool findFinalState(int state, std::list<Transition>) const;
-			bool findInitialState(int state, std::list<std::pair<int,char>>) const;
-			void createProductRec(const Automaton& lhs, const Automaton& rhs, int rhsState, int lhsState, Automaton& res, int fromState, std::list<std::list<int>> coupleList);
+			bool findInitialState(int state, std::list<Transition> listTrans) const;
+			void createProductRec(const Automaton& lhs, const Automaton& rhs, int rhsState, int lhsState, Automaton& res, int fromState, std::list<std::list<int>>& coupleList);
 			void createDeterministicRec(const Automaton& automaton, std::set<int> currStates, std::list<std::set<int>> stateList, Automaton& res, int stateFrom);
 			static Automaton sortStates(const Automaton& automaton);
 			Automaton createWithoutEpsilonRec(const Automaton& automaton, int from, int to);
